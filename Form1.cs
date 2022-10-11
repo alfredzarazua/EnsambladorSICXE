@@ -175,6 +175,7 @@ namespace EnsambladorSicXE
         private void button2_Click(object sender, EventArgs e)
         {
             txtBoxErrores.Text = "";
+            tBoxObjFile.Text = "";
             CP = 0;
             dgridArchivo.Rows.Clear();
             dgridTabSim.Rows.Clear();
@@ -245,8 +246,12 @@ namespace EnsambladorSicXE
 
             pasoDos();
             int tamanoFile = calculaTamano();
+            CalculaCodigoObjeto archObj = new CalculaCodigoObjeto(dgridArchivo, dgridTabSim);
+            List<string> registros = archObj.obtenArchivoObjeto();
+            llenaTBoxObjFile(registros);
             guardarDocumentoErrores();
             guardarDocumentoLOC(tamanoFile);
+            guardarDocumentoObj(registros);
         }
 
         private void cargarTablaSimbolos()
@@ -862,6 +867,28 @@ namespace EnsambladorSicXE
             }
 
             return dir;
+        }
+
+        private void guardarDocumentoObj(List<string> reg)
+        {
+            string newFileName = filePathNofName + "\\" + fileNameNoExt + ".obj";
+
+            using (StreamWriter writer = new StreamWriter(newFileName))
+            {
+                foreach(string lineaReg in reg)
+                {
+                    writer.WriteLine(lineaReg);
+                }
+            }
+        }
+
+        private void llenaTBoxObjFile(List<string> registros)
+        {
+            foreach(string rg in registros)
+            {
+                tBoxObjFile.AppendText(rg);
+                tBoxObjFile.AppendText(Environment.NewLine);
+            }
         }
     }
 }

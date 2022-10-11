@@ -31,8 +31,8 @@ namespace EnsambladorSicXE
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.nuevoToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.abrirToolStripButton = new System.Windows.Forms.ToolStripButton();
@@ -49,6 +49,7 @@ namespace EnsambladorSicXE
             this.label4 = new System.Windows.Forms.Label();
             this.txtBoxErrores = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
+            this.tBoxObjFile = new System.Windows.Forms.TextBox();
             this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgridArchivo)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.editorCodigo)).BeginInit();
@@ -124,8 +125,8 @@ namespace EnsambladorSicXE
             this.dgridArchivo.RowHeadersVisible = false;
             this.dgridArchivo.RowHeadersWidth = 20;
             this.dgridArchivo.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.Teal;
-            this.dgridArchivo.RowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.Teal;
+            this.dgridArchivo.RowsDefaultCellStyle = dataGridViewCellStyle3;
             this.dgridArchivo.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgridArchivo.Size = new System.Drawing.Size(634, 434);
             this.dgridArchivo.TabIndex = 10;
@@ -205,8 +206,8 @@ namespace EnsambladorSicXE
             this.dgridTabSim.RowHeadersVisible = false;
             this.dgridTabSim.RowHeadersWidth = 20;
             this.dgridTabSim.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.Teal;
-            this.dgridTabSim.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.Color.Teal;
+            this.dgridTabSim.RowsDefaultCellStyle = dataGridViewCellStyle4;
             this.dgridTabSim.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgridTabSim.Size = new System.Drawing.Size(243, 382);
             this.dgridTabSim.TabIndex = 15;
@@ -241,20 +242,28 @@ namespace EnsambladorSicXE
             // txtBoxErrores
             // 
             this.txtBoxErrores.Enabled = false;
-            this.txtBoxErrores.Location = new System.Drawing.Point(444, 538);
+            this.txtBoxErrores.Location = new System.Drawing.Point(15, 538);
             this.txtBoxErrores.Multiline = true;
             this.txtBoxErrores.Name = "txtBoxErrores";
-            this.txtBoxErrores.Size = new System.Drawing.Size(634, 131);
+            this.txtBoxErrores.Size = new System.Drawing.Size(322, 131);
             this.txtBoxErrores.TabIndex = 19;
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(948, 512);
+            this.label5.Location = new System.Drawing.Point(221, 512);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(116, 13);
             this.label5.TabIndex = 20;
             this.label5.Text = "Errores en el programa:";
+            // 
+            // tBoxObjFile
+            // 
+            this.tBoxObjFile.Location = new System.Drawing.Point(444, 512);
+            this.tBoxObjFile.Multiline = true;
+            this.tBoxObjFile.Name = "tBoxObjFile";
+            this.tBoxObjFile.Size = new System.Drawing.Size(789, 157);
+            this.tBoxObjFile.TabIndex = 21;
             // 
             // Form1
             // 
@@ -262,6 +271,7 @@ namespace EnsambladorSicXE
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ButtonHighlight;
             this.ClientSize = new System.Drawing.Size(1350, 681);
+            this.Controls.Add(this.tBoxObjFile);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.txtBoxErrores);
             this.Controls.Add(this.LblProgramSize);
@@ -306,6 +316,7 @@ namespace EnsambladorSicXE
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox txtBoxErrores;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox tBoxObjFile;
     }
 }
 
