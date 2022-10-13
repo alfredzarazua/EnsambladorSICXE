@@ -731,8 +731,26 @@ namespace EnsambladorSicXE
                             formatoGuardado = "4";
                             int[] regCod = new int[2];
 
+                            if (inst == "SVC")
+                            {
+                                int nValue = int.Parse(listOper[0]);
+                                if (nValue < 1 || nValue > 16)
+                                {
+                                    dgridArchivo.Rows[i].Cells[6].Value = "Error: Operando fuera de rango";
+                                }
+                            }
+
                             if (listOper.Length > 1)
                             {
+                                if (inst == "SHIFTL" || inst == "SHIFTR")
+                                {
+                                    int nValue = int.Parse(listOper[1]);
+                                    if (nValue < 1 || nValue > 16)
+                                    {
+                                        dgridArchivo.Rows[i].Cells[6].Value = "Error: Operando fuera de rango";
+                                    }
+                                }
+                                
                                 regCod[0] = seg.getRegistrosCodigo(listOper[0]);
                                 regCod[1] = seg.getRegistrosCodigo(listOper[1]);
                                 if (regCod[1] == -1)
