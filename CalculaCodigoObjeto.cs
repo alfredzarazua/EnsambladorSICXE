@@ -162,6 +162,7 @@ namespace EnsambladorSicXE
                 if (dir == -1)
                 {
                     regE += "FFFFFF";
+                    tablaArchivo.Rows[tablaArchivo.RowCount - 1].Cells[6].Value += "-Simbolo no encontrado";
                 }
                 else
                 {
