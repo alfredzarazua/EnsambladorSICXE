@@ -67,7 +67,7 @@ inmediato returns[string[] value = new string[2]]
     ;
 
 forma2 returns[string[] value=new string[2]]
-    : insunreg {$value[1]="2";}| insdosreg {$value[1]="2";}| insnumreg {$value[1]="2";}
+    : insunreg {$value[1]="2";}| insdosreg {$value[1]="2";}| insnumreg {$value[1]="2";}|insnumnoreg {$value[1]="2";}
     ;
 
 insunreg
@@ -80,6 +80,10 @@ insdosreg
 
 insnumreg
 	: FORMATO2REGNUM registros ',' CONS
+	;
+
+insnumnoreg
+	: FORMATO2NUMNOREG CONS
 	;
 
 registros
@@ -149,6 +153,10 @@ FORMATO2DOSREG
 
 FORMATO2REGNUM
 	: ('SHIFTL'|'SHIFTR')
+	;
+
+FORMATO2NUMNOREG
+	: 'SVC'
 	;
 
 REG
