@@ -19,7 +19,7 @@ namespace EnsambladorSicXE
 
 
             string nuevoerror, restoMensaje;
-            if (msg.Contains("expecting {'+', FORMATO1, FORMATO34, FORMATO2UNREG, FORMATO2DOSREG, FORMATO2REGNUM, 'WORD', 'RESB', 'RESW', 'BASE', 'BYTE', 'RSUB'}") == true)
+            if (msg.Contains("expecting {'+', FORMATO1, FORMATO34, FORMATO2UNREG, FORMATO2DOSREG, FORMATO2REGNUM, 'SVC', 'WORD', 'RESB', 'RESW', 'BASE', 'BYTE', 'RSUB'}") == true)
             {
                 nuevoerror = "Error: Instrucción no reconocida ";
                 restoMensaje = "\"" + ((IToken)offendingSymbol).Text + "\"" + " en la linea " + (Global.CurrentLine + 1);
