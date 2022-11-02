@@ -99,11 +99,15 @@ directivo returns[string[] value = new string[2]]
 	;
 
 normaldirec returns[string value]
-	: direcnum {$value=$direcnum.value;}|direcsimb
+	: direcnum {$value=$direcnum.value;}|direcsimb|direqu
 	;
 
 direcnum returns[string value]
 	: WORD CONS{$value="3";}|RESB CONS{$value = $CONS.text;}|RESW CONS{$value = (Global.HexHtoInt($CONS.text)*3).ToString();}
+	;
+
+direqu
+	: EQDIR exprcalc
 	;
 
 
@@ -124,7 +128,37 @@ dirrsub returns[string value]
 	: RSUB {$value="3";}| '+' RSUB {$value="4";}
 	;
 
+exprcalc returns[int[] value = new int[2]]						//El valor calculado por la expresion sera regresado como un entero.
+	:	
+	a = multiplicacion{$value = $a.value;} (		//Se asina el valor que se retornara en la regla.
+	MAS b = multiplicacion {$value[0] =$value[0]+ $b.value[0]; $value[1] =$value[1] + $b.value[1];}				//El valor se suma con el actual en la expresion.
+	|
+	MENOS b = multiplicacion{$value[0] =$value[0]- $b.value[0]; $value[1] =$value[1] - $b.value[1];})*	//El valor se resta con el actual y se imprime el valor.
+	;
 
+multiplicacion returns[int[] value = new int[2]]					//La regla retorna un entero.
+	:	
+	a = numero{$value = $a.value;}  (				//Se asigna el valor que se regresara.
+	POR b = numero{$value[0] =$value[0]* $b.value[0]; $value[1] =$value[1] + $b.value[1];}		//Se calcula la multiplicacion 
+	|
+	ENTRE b = numero{$value[0] =$value[0]/ $b.value[0]; $value[1] =$value[1] + $b.value[1];})*	//Se calcula la division.
+	;
+
+numero returns[int[] value = new int[2]]							//La regla retonara un entero.
+	:	
+	tbsimbolo	{$value = $tbsimbolo.value;}			//se convierte a entero la cadena de entrada de la consola.			
+	|
+	MENOS tbsimbolo {$value[0] = -1*$tbsimbolo.value[0]; $value[1] = -1*$tbsimbolo.value[1];}
+	|	
+	PARENI exprcalc PAREND		{$value = $exprcalc.value;}		//se asigna el valor de la expresion dentro del parentesis.
+	|
+	MENOS PARENI exprcalc PAREND {$value[0] = -1*$exprcalc.value[0]; $value[1] = -1*$exprcalc.value[1];}
+	;
+
+tbsimbolo returns[int[] value = new int[2]]
+	:
+	ETIQ /*{$value[0]=Program.getDir($ETIQ.text); $value[1]=Program.esRoA($ETIQ.text);}*/
+	;
 
 /*
 *	Reglas del Lexer.
@@ -187,10 +221,34 @@ RSUB
 	: 'RSUB'
 	;
 
+EQDIR
+	: 'EQU'
+	;
+
+
+PARENI
+	:	'('		//token de parentesis derecho
+	;
+PAREND
+	:	')'		//token de parentesis izquierdo.
+	;
+MAS 
+	: '+'		//token de signo mas
+	;
+MENOS 
+	: '-'		//token de signo menos
+	;
+POR
+	: '*'		//token de signo por
+	;
+
+ENTRE
+	: '/'		//token de signo entre
+	;
+
 ETIQ
     : ('a'..'z'|'A'..'Z') ('a'..'z'|'A'..'Z'|'0'..'9')*
     ;
-
 
 CONS
     : (('a'..'f'|'A'..'F'|'0'..'9')+)('H'|)  

@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace EnsambladorSicXE
 {
@@ -65,6 +66,26 @@ namespace EnsambladorSicXE
             else band = int.TryParse(cadena, out result);
 
             return band;
+        }
+
+        public static void validarExpresionRA(DataGridView TabSim, string expre)
+        {
+
+        }
+
+        public static bool terminoRelativo(DataGridView TabSim, string simbolo)
+        {
+            bool tipo = true;
+            for (int i = 0; i < TabSim.Rows.Count; i++)
+            {
+                if ((string)TabSim.Rows[i].Cells[0].Value == simbolo)
+                {
+                    if ((string)TabSim.Rows[i].Cells[2].Value == "A") tipo = false;
+                    break;
+                }
+            }
+
+            return tipo;
         }
     }
 }

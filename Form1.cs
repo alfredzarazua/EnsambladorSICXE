@@ -218,7 +218,7 @@ namespace EnsambladorSicXE
                             parser.expresion2();
                         }
 
-                        string[] tabSimRen = new string[2];
+                        string[] tabSimRen = new string[3];
                         agregaFormato(infor, row);
 
                         row[2] = CP.ToString("X4");
@@ -232,6 +232,11 @@ namespace EnsambladorSicXE
 
                         if (i != 0 && tabSimRen[0] != null && !row[6].Contains("Error"))
                         {
+                            tabSimRen[2] = "R"; 
+                            if (row[4] == "EQU")
+                            {
+
+                            }
                             LlenaTabSimGrid(tabSimRen, ref row[6]);
                         }
 
@@ -260,7 +265,8 @@ namespace EnsambladorSicXE
             dgridTabSim.Columns.Clear();
             dgridTabSim.Columns.Add("col1", "Simbolo");
             dgridTabSim.Columns.Add("col2", "Direccion");
-            
+            dgridTabSim.Columns.Add("col2", "Tipo");
+
             //Codigo para cargar tabla de simbolos aqui
             dgridTabSim.ClearSelection();
         }
@@ -296,9 +302,10 @@ namespace EnsambladorSicXE
 
         private void iniciarGridTabSim()
         {
-            dgridTabSim.ColumnCount = 2;
+            dgridTabSim.ColumnCount = 3;
             dgridTabSim.Columns[0].Name = "Simbolo";
             dgridTabSim.Columns[1].Name = "Dirección";
+            dgridTabSim.Columns[2].Name = "Tipo";
         }
 
         private void agregaFormato(string[] value, string[] row)
@@ -384,7 +391,7 @@ namespace EnsambladorSicXE
 
         private string[] obtenUnSimbolo(string simbolo, string dir)
         {
-            string[] rengTabSim = new string[2];
+            string[] rengTabSim = new string[3];
 
             rengTabSim[0] = simbolo;
             rengTabSim[1] = dir;
