@@ -1,5 +1,4 @@
-﻿
-namespace EnsambladorSicXE
+﻿namespace EnsambladorSicXE
 {
     partial class Form1
     {

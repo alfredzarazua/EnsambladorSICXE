@@ -171,7 +171,10 @@ namespace EnsambladorSicXE
                 }
             }
         }
-
+        private int obtenerCP()
+        {
+            return CP;
+        }
         private void button2_Click(object sender, EventArgs e)
         {
             txtBoxErrores.Text = "";
@@ -200,6 +203,9 @@ namespace EnsambladorSicXE
                     sicxeParser parser = new sicxeParser(tokens);
                     parser.RemoveErrorListeners();
                     parser.AddErrorListener(new ErrorListener());
+                    parser.buscarEtiq = new sicxeParser.BuscarEnTabSim(buscaTabSim);
+                    parser.obtenCP = new sicxeParser.ObtenerValorCP(obtenerCP);
+                    parser.convertNum = new sicxeParser.ConvierteNumero(convertirNumero);
 
                     try
                     {
@@ -221,9 +227,8 @@ namespace EnsambladorSicXE
                         string[] tabSimRen = new string[3];
                         agregaFormato(infor, row);
 
-                        row[2] = CP.ToString("X4");
-                        calculaCP(currentErrorNUmber, infor);
-                        string[] lineasCod = getListaToken(tokens, lex, row, ref tabSimRen);
+                        row[2] = CP.ToString("X4");                        
+                        string[] lineasCod = getListaToken(tokens, lex, row, ref tabSimRen);                        
                         row[3] = lineasCod[0];
                         row[4] = lineasCod[1];
                         row[5] = lineasCod[2];
@@ -232,14 +237,15 @@ namespace EnsambladorSicXE
 
                         if (i != 0 && tabSimRen[0] != null && !row[6].Contains("Error"))
                         {
-                            tabSimRen[2] = "R"; 
+                            tabSimRen[2] = "R";
                             if (row[4] == "EQU")
-                            {
-
+                            {                                
+                                string simb = tokens.GetTokens()[0].Text;
+                                tabSimRen = obtenUnSimbolo(simb, infor[3]);//infor[3] contiene la dir/valor de equ, infor[4] la suma para ver el tipo de termino                                                            
                             }
                             LlenaTabSimGrid(tabSimRen, ref row[6]);
                         }
-
+                        calculaCP(currentErrorNUmber, infor);
                         llenaGridInterm(row);
                     }
                     catch (RecognitionException ele)
@@ -259,17 +265,17 @@ namespace EnsambladorSicXE
             guardarDocumentoObj(registros);
         }
 
-        private void cargarTablaSimbolos()
-        {
-            dgridTabSim.Rows.Clear();
-            dgridTabSim.Columns.Clear();
-            dgridTabSim.Columns.Add("col1", "Simbolo");
-            dgridTabSim.Columns.Add("col2", "Direccion");
-            dgridTabSim.Columns.Add("col2", "Tipo");
+        //private void cargarTablaSimbolos()
+        //{
+        //    dgridTabSim.Rows.Clear();
+        //    dgridTabSim.Columns.Clear();
+        //    dgridTabSim.Columns.Add("col1", "Simbolo");
+        //    dgridTabSim.Columns.Add("col2", "Direccion");
+        //    dgridTabSim.Columns.Add("col2", "Tipo");
 
-            //Codigo para cargar tabla de simbolos aqui
-            dgridTabSim.ClearSelection();
-        }
+        //    //Codigo para cargar tabla de simbolos aqui
+        //    dgridTabSim.ClearSelection();
+        //}
         //private void fillDataGridArchivo(List<FileRow> fileRows)
         //{
         //    dgridArchivo.Rows.Clear();
@@ -339,7 +345,17 @@ namespace EnsambladorSicXE
                 }
             }
         }
-
+        private int convertirNumero(string num)
+        {
+            int resultado;
+            if (num.Contains("H")||num.Contains("h"))
+            {
+                string noH = num.Remove(num.Length - 1, 1);
+                resultado = Convert.ToInt32(noH, 16);
+            }
+            else resultado = Int32.Parse(num);
+            return resultado;
+        }
         private string[] getListaToken(CommonTokenStream tok, sicxeLexer Lex, string[] row, ref string[] tabSrow)
         {
             string[] lineaCod = new string[3];
@@ -878,7 +894,7 @@ namespace EnsambladorSicXE
             }
         }
 
-        private int buscaTabSim(string simbolo)
+        public int buscaTabSim(string simbolo)
         {
             int dir = -1;
 

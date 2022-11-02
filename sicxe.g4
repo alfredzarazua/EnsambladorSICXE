@@ -19,18 +19,19 @@ inicio
 	: simbolo 'START' CONS NEWLINE*
 	;
 
-expresion returns[string[] value = new string[2]]
-    : simbolo instruct NEWLINE{$value=$instruct.value;}
+expresion returns[string[] value = new string[5]]
+    : simbolo instruct NEWLINE{$value=$instruct.value;}	
     ;
 
 expresion2
     : 'END' ope? NEWLINE*
     ;
 
-instruct returns[string[] value = new string[3]]
+instruct returns[string[] value = new string[5]]
     : FORMATO1 {$value[1] = "1"; $value[2] = "1";}|forma2 {$value[0]=$forma2.value[0];$value[1]=$forma2.value[1];$value[2]="1";}|
 		simple {$value[0]=$simple.value[0];$value[1]=$simple.value[1];$value[2]="1";}|indirecto {$value[0]=$indirecto.value[0];$value[1]=$indirecto.value[1];$value[2]="1";}|
-		inmediato {$value[0]=$inmediato.value[0];$value[1]=$inmediato.value[1];$value[2]="1";}|directivo {$value[1]=$directivo.value[1];}|
+		inmediato {$value[0]=$inmediato.value[0];$value[1]=$inmediato.value[1];$value[2]="1";}|
+        directivo {$value[1]=$directivo.value[1];$value[3]=$directivo.value[2];$value[4]=$directivo.value[3];}|
 		dirrsub {$value[1]=$dirrsub.value; $value[2]="1";}
     ;
  
@@ -94,22 +95,23 @@ simbolo
     : ETIQ |
     ;
 
-directivo returns[string[] value = new string[2]]
-	: normaldirec {$value[1]=$normaldirec.value;}|specdirec {$value[1]=$specdirec.value;}
+directivo returns[string[] value = new string[4]]//los campos 2 y 3 contienen direccion/valor de equ y tipo de termino 
+	: normaldirec {$value[1]=$normaldirec.value[0];$value[2]=$normaldirec.value[1];$value[3]=$normaldirec.value[2];}|specdirec {$value[1]=$specdirec.value;}
 	;
 
-normaldirec returns[string value]
-	: direcnum {$value=$direcnum.value;}|direcsimb|direqu
+normaldirec returns[string[] value = new string[3]]
+	: direcnum {$value[0]=$direcnum.value;}|direcsimb|
+	direqu{$value[1]=$direqu.value[0].ToString("X4");$value[2]=$direqu.value[1].ToString();}
 	;
 
 direcnum returns[string value]
-	: WORD CONS{$value="3";}|RESB CONS{$value = $CONS.text;}|RESW CONS{$value = (Global.HexHtoInt($CONS.text)*3).ToString();}
+	: WORD exprcalc{$value="3";}|RESB exprcalc{$value = $exprcalc.value[0].ToString();}|RESW exprcalc{$value = (Global.HexHtoInt($exprcalc.value[0].ToString())*3).ToString();}
 	;
 
-direqu
-	: EQDIR exprcalc
+direqu returns[int[] value = new int[2]]
+	: EQDIR exprcalc{ $value[0] = $exprcalc.value[0]; $value[1] = $exprcalc.value[1];}|
+	EQDIR ASTERISCO{$value[0]=obtenCP(); $value[1]=1;}	//numeros positivos indican que es relativo}
 	;
-
 
 direcsimb
 	: DIRBAS ETIQ
@@ -145,7 +147,8 @@ multiplicacion returns[int[] value = new int[2]]					//La regla retorna un enter
 	;
 
 numero returns[int[] value = new int[2]]							//La regla retonara un entero.
-	:	
+	:
+	CONS{$value[0]=convertNum($CONS.text);$value[1]=0;}|	//termino absoluto lo pasa a decimal si esta en HEX
 	tbsimbolo	{$value = $tbsimbolo.value;}			//se convierte a entero la cadena de entrada de la consola.			
 	|
 	MENOS tbsimbolo {$value[0] = -1*$tbsimbolo.value[0]; $value[1] = -1*$tbsimbolo.value[1];}
@@ -157,13 +160,15 @@ numero returns[int[] value = new int[2]]							//La regla retonara un entero.
 
 tbsimbolo returns[int[] value = new int[2]]
 	:
-	ETIQ /*{$value[0]=Program.getDir($ETIQ.text); $value[1]=Program.esRoA($ETIQ.text);}*/
+	ETIQ {$value[0]=buscarEtiq($ETIQ.text); $value[1]=buscarEtiq($ETIQ.text);}|	
 	;
 
 /*
 *	Reglas del Lexer.
 */
-
+ASTERISCO
+	: '*'
+	;
 EQUIS
 	: 'X'
 	;
