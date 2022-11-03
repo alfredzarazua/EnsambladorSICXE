@@ -32,7 +32,7 @@ namespace EnsambladorSicXE
         private String regex_inst = "([ \t]|[\n]|['+'])+(ADD|ADDF|AND|COMP|COMPF|DIV|DIVF|J|JEQ|JGT|JLT|JSUB|LDA|LDB|LDCH|LDF|LDL|LDS|LDX|LPS|MUL|MULF|OR|RD|RSUB|SSK|STA|STB|STCH|STF|STI|STL|STS|STSW|STT|STX|SUB|SUBF|TD|TIX|WD|ADDR|SUBR|COMPR|DIVR|MULR|RMO|FIX|FLOAT|HIO|NORM|SIO|TIO|CLEAR|SHIFTR|SHIFTL|TIXR|SVC)([ \t]+|(\r\n))";
         private String regex_number = "([ \t]|[\n]|['@']|['#'])+(([a-fA-F0-9]+(h|H))|([0-9]+))([ \t]+|(\r\n))";
         private String regex_directive = "([ \t]|[\n])+(START|END)([ \t]+|(\r\n))";
-        private String regex_directive2 = "([ \t]|[\n])+(BYTE|WORD|RESB|RESW|BASE)([ \t]+|(\r\n))";
+        private String regex_directive2 = "([ \t]|[\n])+(BYTE|WORD|RESB|RESW|BASE|EQU|ORG)([ \t]+|(\r\n))";
         public Form1()
         {
             InitializeComponent();
@@ -300,33 +300,6 @@ namespace EnsambladorSicXE
             guardarDocumentoLOC(tamanoFile);
             guardarDocumentoObj(registros);
         }
-
-        //private void cargarTablaSimbolos()
-        //{
-        //    dgridTabSim.Rows.Clear();
-        //    dgridTabSim.Columns.Clear();
-        //    dgridTabSim.Columns.Add("col1", "Simbolo");
-        //    dgridTabSim.Columns.Add("col2", "Direccion");
-        //    dgridTabSim.Columns.Add("col2", "Tipo");
-
-        //    //Codigo para cargar tabla de simbolos aqui
-        //    dgridTabSim.ClearSelection();
-        //}
-        //private void fillDataGridArchivo(List<FileRow> fileRows)
-        //{
-        //    dgridArchivo.Rows.Clear();
-        //    dgridArchivo.Columns.Clear();
-        //    string[] encabezados = { "Linea", "Formato", "PC", "Etiqueta", "codOperacion", "Operandos", "Modo Direcc", "Errores/Codigo Obj" };
-        //    for (int i = 0; i < 8; i++)
-        //        dgridArchivo.Columns.Add("col" + i, encabezados[i]);
-
-        //    foreach (FileRow row in fileRows)
-        //    {
-        //        dgridArchivo.Rows.Add(row.lineCounter, row.formato, row.cpHex, row.etiqueta, row.opCode, row.operandos, row.mdirec, row.codObjeto_error);
-        //    }
-        //    dgridArchivo.ClearSelection();
-        //}
-
 
         private void iniciarGridInter()
         {

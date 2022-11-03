@@ -134,8 +134,16 @@ namespace EnsambladorSicXE
                 if (((string)tablaArchivo.Rows[i].Cells[7].Value).Contains("*"))
                 {
                     string rengRM = "M";
-                    int currentCP = Convert.ToInt32((string)tablaArchivo.Rows[i].Cells[2].Value, 16) +1;
-                    rengRM += currentCP.ToString("X6") + "05" + "+" + nombProg;
+                    if (((string)tablaArchivo.Rows[i].Cells[7].Value).Length==7)//registro para WORD
+                    {
+                        int currentCP = Convert.ToInt32((string)tablaArchivo.Rows[i].Cells[2].Value, 16);
+                        rengRM += currentCP.ToString("X6") + "06" + "+" + nombProg;
+                    }
+                    else//registro para formato 4
+                    {
+                        int currentCP = Convert.ToInt32((string)tablaArchivo.Rows[i].Cells[2].Value, 16) + 1;
+                        rengRM += currentCP.ToString("X6") + "05" + "+" + nombProg;
+                    }                    
                     regM.Add(rengRM);
                 }
             }
