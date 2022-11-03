@@ -40,7 +40,7 @@ instruct returns[string[] value = new string[5]]
     ;
 
 index returns[string value]
-    : normal ope ',' EQUIS {$value=$normal.value;} |exten ope ',' EQUIS {$value=$exten.value;}
+    : normal exprcalc ',' EQUIS {$value=$normal.value;} |exten exprcalc ',' EQUIS {$value=$exten.value;}
     ;
 
 ope
@@ -56,15 +56,15 @@ exten returns[string value]
     ;
 
 noindex returns[string value]
-    : normal ope {$value=$normal.value;}| exten ope {$value=$exten.value;}
+    : normal exprcalc {$value=$normal.value;}| exten exprcalc {$value=$exten.value;}
     ;
 
 indirecto returns[string[] value = new string[2]]
-    : normal '@' ope {$value[0]="indirecto"; $value[1] = $normal.value;}|exten '@' ope {$value[0]="indirecto"; $value[1] = $exten.value;}
+    : normal '@' exprcalc {$value[0]="indirecto"; $value[1] = $normal.value;}|exten '@' exprcalc {$value[0]="indirecto"; $value[1] = $exten.value;}
     ;
 
 inmediato returns[string[] value = new string[2]] 
-    : normal '#' ope {$value[0]="inmediato"; $value[1] = $normal.value;}| exten '#' ope {$value[0]="inmediato"; $value[1] = $exten.value;}
+    : normal '#' exprcalc {$value[0]="inmediato"; $value[1] = $normal.value;}| exten '#' exprcalc {$value[0]="inmediato"; $value[1] = $exten.value;}
     ;
 
 forma2 returns[string[] value=new string[2]]
@@ -101,7 +101,8 @@ directivo returns[string[] value = new string[4]]//los campos 2 y 3 contienen di
 
 normaldirec returns[string[] value = new string[3]]
 	: direcnum {$value[0]=$direcnum.value;}|direcsimb|
-	direqu{$value[1]=$direqu.value[0].ToString("X4");$value[2]=$direqu.value[1].ToString();}
+	direqu{$value[1]=$direqu.value[0].ToString("X4");$value[2]=$direqu.value[1].ToString();}|
+	dirorg
 	;
 
 direcnum returns[string value]
@@ -110,7 +111,11 @@ direcnum returns[string value]
 
 direqu returns[int[] value = new int[2]]
 	: EQDIR exprcalc{ $value[0] = $exprcalc.value[0]; $value[1] = $exprcalc.value[1];}|
-	EQDIR ASTERISCO{$value[0]=obtenCP(); $value[1]=1;}	//numeros positivos indican que es relativo}
+	EQDIR POR{$value[0]=obtenCP(); $value[1]=1;}	//numeros positivos indican que es relativo}
+	;
+
+dirorg
+	: ORG CONS
 	;
 
 direcsimb
@@ -141,9 +146,11 @@ exprcalc returns[int[] value = new int[2]]						//El valor calculado por la expr
 multiplicacion returns[int[] value = new int[2]]					//La regla retorna un entero.
 	:	
 	a = numero{$value = $a.value;}  (				//Se asigna el valor que se regresara.
-	POR b = numero{$value[0] =$value[0]* $b.value[0]; $value[1] =$value[1] + $b.value[1];}		//Se calcula la multiplicacion 
+	POR b = numero{if($value[1]==0 && $b.value[1]==0){$value[0] =$value[0]* $b.value[0]; $value[1] =$value[1] + $b.value[1];}
+			else{$value[0] =$value[0]* $b.value[0]; $value[1] =10000;}}		//Se calcula la multiplicacion 
 	|
-	ENTRE b = numero{$value[0] =$value[0]/ $b.value[0]; $value[1] =$value[1] + $b.value[1];})*	//Se calcula la division.
+	ENTRE b = numero{if($value[1]==0 && $b.value[1]==0){$value[0] =$value[0]/ $b.value[0]; $value[1] =$value[1] + $b.value[1];}
+			else{$value[0] =$value[0]/ $b.value[0]; $value[1] =10000;}}	)*	//Se calcula la division.
 	;
 
 numero returns[int[] value = new int[2]]							//La regla retonara un entero.
@@ -160,15 +167,13 @@ numero returns[int[] value = new int[2]]							//La regla retonara un entero.
 
 tbsimbolo returns[int[] value = new int[2]]
 	:
-	ETIQ {$value[0]=buscarEtiq($ETIQ.text); $value[1]=buscarEtiq($ETIQ.text);}|	
+	ETIQ {$value[0]=buscarEtiq($ETIQ.text); $value[1]=buscaTipo($ETIQ.text);}|	
 	;
 
 /*
 *	Reglas del Lexer.
 */
-ASTERISCO
-	: '*'
-	;
+
 EQUIS
 	: 'X'
 	;
@@ -230,6 +235,9 @@ EQDIR
 	: 'EQU'
 	;
 
+ORG
+	: 'ORG'
+	;
 
 PARENI
 	:	'('		//token de parentesis derecho

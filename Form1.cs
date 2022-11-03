@@ -206,6 +206,7 @@ namespace EnsambladorSicXE
                     parser.buscarEtiq = new sicxeParser.BuscarEnTabSim(buscaTabSim);
                     parser.obtenCP = new sicxeParser.ObtenerValorCP(obtenerCP);
                     parser.convertNum = new sicxeParser.ConvierteNumero(convertirNumero);
+                    parser.buscaTipo = new sicxeParser.obtenTipoSimboloTabSim(obtenTipoSimboloTabSim);
 
                     try
                     {
@@ -239,13 +240,48 @@ namespace EnsambladorSicXE
                         {
                             tabSimRen[2] = "R";
                             if (row[4] == "EQU")
-                            {                                
-                                string simb = tokens.GetTokens()[0].Text;
-                                tabSimRen = obtenUnSimbolo(simb, infor[3]);//infor[3] contiene la dir/valor de equ, infor[4] la suma para ver el tipo de termino                                                            
+                            {
+                                if(row[5] != "*\r\n")
+                                {
+                                    if (Int32.Parse(infor[4]) > 2000)
+                                    {
+                                        row[6] += "Error expresión invalida";
+                                        tabSimRen[1] = "FFFF";
+                                        tabSimRen[2] = "A";
+
+                                    }
+                                    else
+                                    {
+                                        if (infor[4] == "0")
+                                        {
+                                            tabSimRen[2] = "A";
+                                            tabSimRen[1] = infor[3];
+                                        }
+                                        else if(infor[4] == "1")
+                                        {
+                                            tabSimRen[2] = "R";
+                                            tabSimRen[1] = infor[3];
+                                        }
+                                        else
+                                        {
+                                            row[6] += "Error expresión invalida";
+                                            tabSimRen[1] = "FFFF";
+                                            tabSimRen[2] = "A";
+                                        }
+                                    }
+                                    
+                                }
+                                
                             }
                             LlenaTabSimGrid(tabSimRen, ref row[6]);
                         }
                         calculaCP(currentErrorNUmber, infor);
+                        if(row[4] == "ORG")
+                        {
+                            row[5] = row[5].Replace("\r\n", string.Empty);
+                            int tempCP = Global.HexHtoInt(row[5]);
+                            CP = tempCP;
+                        }
                         llenaGridInterm(row);
                     }
                     catch (RecognitionException ele)
@@ -617,17 +653,25 @@ namespace EnsambladorSicXE
 
                                         else operandosOrden.Add(listOper[0]);
                                         string keepOperando = operandosOrden[0];
+                                        int[] info = evaluarExpresion(operandosOrden[0]);
                                         bool esC = false;
                                         int bandCorM = seg.isM(operandosOrden[0]);
-                                        if (bandCorM != 0)
+                                        if (info[1]==1)
                                         {
                                             operandosOrden[0] = "m";
-                                            if (bandCorM == 2) esC = true;
+                                            if (xbpe % 2 != 0) reloc = "*";
                                         }
-                                        else
+                                        else if (info[1] == 0)
                                         {
-                                            operandosOrden[0] = "c";
-                                            esC = true;
+                                            if (info[0] > 4095)
+                                            {
+                                                operandosOrden[0] = "m";
+                                            }
+                                            else
+                                            {
+                                                operandosOrden[0] = "c";
+                                                esC = true;
+                                            }
                                         }
 
                                         if (!seg.checkMDSimple(xbpe, operandosOrden))
@@ -637,26 +681,9 @@ namespace EnsambladorSicXE
                                         }
                                         else
                                         {
-                                            int dir = -1;
-                                            if (operandosOrden[0] == "m")
-                                            {
-                                                if (!esC)
-                                                {
-                                                    dir = buscaTabSim(keepOperando);
-                                                    if (xbpe % 2 != 0) reloc = "*";
-                                                }
-                                                else
-                                                {
-                                                    Global.checkIfInt(keepOperando, ref dir);
-                                                    esC = false;
-                                                }
+                                            int dir = info[0];
 
-                                            }
-                                            else
-                                            {
-                                                Global.checkIfInt(keepOperando, ref dir);
-                                            }
-                                            if (dir != -1)
+                                            if (info[1] < 2000)
                                             {
                                                 codOp = seg.calculaCodigoCompleto(xbpe, codOp, CP, dir, esC, regBase, ref hasErrorCPB);
                                             }
@@ -673,29 +700,21 @@ namespace EnsambladorSicXE
                                     {
                                         codOp += 2;
                                         oper = oper.Remove(0, 1);
-                                        int bandCorM = seg.isM(oper);
+                                        int[] info = evaluarExpresion(oper);
                                         bool esC = false;
                                         int dir = -1;
-                                        if (bandCorM == 0)
+                                        if (info[1] == 0)
                                         {
-                                            Global.checkIfInt(oper, ref dir);
                                             esC = true;
                                         }
-                                        else
+                                        else if (info[1] == 1)
                                         {
-
-                                            if (bandCorM == 1)
-                                            {
-                                                dir = buscaTabSim(oper);
-                                                if (xbpe % 2 != 0) reloc = "*";
-                                            }
-                                            else
-                                            {
-                                                Global.checkIfInt(oper, ref dir);
-                                            }
+                                            if (xbpe % 2 != 0) reloc = "*";
                                         }
 
-                                        if (dir != -1)
+                                        dir = info[0];
+
+                                        if (info[1] < 2000)
                                         {
                                             codOp = seg.calculaCodigoCompleto(xbpe, codOp, CP, dir, esC, regBase, ref hasErrorCPB);
                                         }
@@ -711,29 +730,21 @@ namespace EnsambladorSicXE
                                     {
                                         codOp += 1;
                                         oper = oper.Remove(0, 1);
-                                        int bandCorM = seg.isM(oper);
+                                        int[] info = evaluarExpresion(oper);
                                         bool esC = false;
                                         int dir = -1;
-                                        if (bandCorM == 0)
+                                        if (info[1] == 0)
                                         {
-                                            Global.checkIfInt(oper, ref dir);
                                             esC = true;
                                         }
-                                        else
+                                        else if(info[1] == 1)
                                         {
-
-                                            if (bandCorM == 1)
-                                            {
-                                                dir = buscaTabSim(oper);
-                                                if (xbpe % 2 != 0) reloc = "*";
-                                            }
-                                            else
-                                            {
-                                                Global.checkIfInt(oper, ref dir);
-                                            }
+                                            if (xbpe % 2 != 0) reloc = "*";
                                         }
 
-                                        if (dir != -1)
+                                        dir = info[0];
+
+                                        if (info[1] <2000)
                                         {
                                             codOp = seg.calculaCodigoCompleto(xbpe, codOp, CP, dir, esC, regBase, ref hasErrorCPB);
                                         }
@@ -830,11 +841,22 @@ namespace EnsambladorSicXE
                 else if (inst == "WORD")
                 {
                     //int hsize = (int)System.Math.Floor((double)listOper[0].Length/2);
+                    int[] res = evaluarExpresion(dgridArchivo.Rows[i].Cells[5].Value.ToString());
                     formatoGuardado = "6";
-                    int res = 0;
-                    Global.checkIfInt(listOper[0], ref res);
-                    codOp = res;
-                    dgridArchivo.Rows[i].Cells[7].Value = codOp.ToString("X" + formatoGuardado);
+                    //int res = 0;
+                    //Global.checkIfInt(listOper[0], ref res);
+                    codOp = res[0];
+                    string modif = "";
+                    if (res[1] == 1)
+                    {
+                        modif = "*";
+                    }
+                    else if (res[1] < 0 || res[1] > 1)
+                    {
+                        dgridArchivo.Rows[i].Cells[6].Value = "Error: Expresión inválida";
+                        codOp = -1;
+                    }
+                    dgridArchivo.Rows[i].Cells[7].Value = codOp.ToString("X" + formatoGuardado) + modif;
                 }
 
                 else if(inst=="BYTE")
@@ -910,6 +932,25 @@ namespace EnsambladorSicXE
             return dir;
         }
 
+        public int obtenTipoSimboloTabSim(string simbolo)
+        {
+            string tipo = "NA";
+            int valor = 10000;
+
+            for (int i = 0; i < dgridTabSim.Rows.Count; i++)
+            {
+                if ((string)dgridTabSim.Rows[i].Cells[0].Value == simbolo)
+                {
+                    tipo = (string)dgridTabSim.Rows[i].Cells[2].Value;
+                    break;
+                }
+            }
+
+            if (tipo == "R") valor = 1;
+            else if (tipo == "A") valor = 0;
+            return valor;
+        }
+
         private void guardarDocumentoObj(List<string> reg)
         {
             string newFileName = filePathNofName + "\\" + fileNameNoExt + ".obj";
@@ -930,6 +971,20 @@ namespace EnsambladorSicXE
                 tBoxObjFile.AppendText(rg);
                 tBoxObjFile.AppendText(Environment.NewLine);
             }
+        }
+
+        private int[] evaluarExpresion(string exp)
+        {
+            sicxeLexer lex = new sicxeLexer(new AntlrInputStream(exp + Environment.NewLine));
+            CommonTokenStream tokens = new CommonTokenStream(lex);
+            sicxeParser parser = new sicxeParser(tokens);
+            parser.RemoveErrorListeners();
+            parser.AddErrorListener(new ErrorListener());
+            parser.buscarEtiq = new sicxeParser.BuscarEnTabSim(buscaTabSim);
+            parser.obtenCP = new sicxeParser.ObtenerValorCP(obtenerCP);
+            parser.convertNum = new sicxeParser.ConvierteNumero(convertirNumero);
+            parser.buscaTipo = new sicxeParser.obtenTipoSimboloTabSim(obtenTipoSimboloTabSim);
+            return parser.exprcalc().value;
         }
     }
 }

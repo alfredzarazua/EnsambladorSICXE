@@ -236,7 +236,12 @@ namespace EnsambladorSicXE
                 finalCodObj = 0x000000;
                 if (C)
                 {
-                    desp = operando;
+                    if(operando<0 || operando > 4095)
+                    {
+                        Error = true;
+                        xbpe = xbpe | 0x04; xbpe = xbpe | 0x02;
+                    }
+                    else desp = operando;
                 }
                 else
                 {
@@ -261,13 +266,15 @@ namespace EnsambladorSicXE
                         Error = true;
                     }
 
-                    if (desp == 0xFFF) desp = 0xFFF;
-                    instCod = instCod << 16;
-                    xbpe = xbpe << 12;
-                    finalCodObj = finalCodObj | instCod;
-                    finalCodObj = finalCodObj | xbpe;
-                    finalCodObj = finalCodObj | desp;
+                    
                 }
+
+                if (desp == 0xFFF) desp = 0xFFF;
+                instCod = instCod << 16;
+                xbpe = xbpe << 12;
+                finalCodObj = finalCodObj | instCod;
+                finalCodObj = finalCodObj | xbpe;
+                finalCodObj = finalCodObj | desp;
 
             }
             else
