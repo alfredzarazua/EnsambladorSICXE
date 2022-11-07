@@ -30,8 +30,9 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.nuevoToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.abrirToolStripButton = new System.Windows.Forms.ToolStripButton();
@@ -49,10 +50,12 @@
             this.txtBoxErrores = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.tBoxObjFile = new System.Windows.Forms.TextBox();
+            this.dgridTabBloq = new System.Windows.Forms.DataGridView();
             this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgridArchivo)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.editorCodigo)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgridTabSim)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgridTabBloq)).BeginInit();
             this.SuspendLayout();
             // 
             // toolStrip1
@@ -124,8 +127,8 @@
             this.dgridArchivo.RowHeadersVisible = false;
             this.dgridArchivo.RowHeadersWidth = 20;
             this.dgridArchivo.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.Teal;
-            this.dgridArchivo.RowsDefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.Teal;
+            this.dgridArchivo.RowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgridArchivo.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgridArchivo.Size = new System.Drawing.Size(634, 434);
             this.dgridArchivo.TabIndex = 10;
@@ -178,6 +181,7 @@
             this.editorCodigo.CharWidth = 8;
             this.editorCodigo.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.editorCodigo.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+            this.editorCodigo.Font = new System.Drawing.Font("Courier New", 9.75F);
             this.editorCodigo.ForeColor = System.Drawing.SystemColors.ControlText;
             this.editorCodigo.IsReplaceMode = false;
             this.editorCodigo.Location = new System.Drawing.Point(15, 62);
@@ -205,8 +209,8 @@
             this.dgridTabSim.RowHeadersVisible = false;
             this.dgridTabSim.RowHeadersWidth = 20;
             this.dgridTabSim.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.Color.Teal;
-            this.dgridTabSim.RowsDefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.Teal;
+            this.dgridTabSim.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgridTabSim.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgridTabSim.Size = new System.Drawing.Size(243, 382);
             this.dgridTabSim.TabIndex = 15;
@@ -261,8 +265,29 @@
             this.tBoxObjFile.Location = new System.Drawing.Point(444, 512);
             this.tBoxObjFile.Multiline = true;
             this.tBoxObjFile.Name = "tBoxObjFile";
-            this.tBoxObjFile.Size = new System.Drawing.Size(789, 157);
+            this.tBoxObjFile.Size = new System.Drawing.Size(459, 157);
             this.tBoxObjFile.TabIndex = 21;
+            // 
+            // dgridTabBloq
+            // 
+            this.dgridTabBloq.AllowUserToAddRows = false;
+            this.dgridTabBloq.AllowUserToDeleteRows = false;
+            this.dgridTabBloq.AllowUserToResizeColumns = false;
+            this.dgridTabBloq.AllowUserToResizeRows = false;
+            this.dgridTabBloq.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgridTabBloq.BackgroundColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.dgridTabBloq.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.dgridTabBloq.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgridTabBloq.Location = new System.Drawing.Point(915, 512);
+            this.dgridTabBloq.Name = "dgridTabBloq";
+            this.dgridTabBloq.RowHeadersVisible = false;
+            this.dgridTabBloq.RowHeadersWidth = 20;
+            this.dgridTabBloq.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.Teal;
+            this.dgridTabBloq.RowsDefaultCellStyle = dataGridViewCellStyle3;
+            this.dgridTabBloq.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgridTabBloq.Size = new System.Drawing.Size(403, 157);
+            this.dgridTabBloq.TabIndex = 22;
             // 
             // Form1
             // 
@@ -270,6 +295,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ButtonHighlight;
             this.ClientSize = new System.Drawing.Size(1350, 681);
+            this.Controls.Add(this.dgridTabBloq);
             this.Controls.Add(this.tBoxObjFile);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.txtBoxErrores);
@@ -292,6 +318,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgridArchivo)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.editorCodigo)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgridTabSim)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgridTabBloq)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -316,6 +343,7 @@
         private System.Windows.Forms.TextBox txtBoxErrores;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox tBoxObjFile;
+        public System.Windows.Forms.DataGridView dgridTabBloq;
     }
 }
 

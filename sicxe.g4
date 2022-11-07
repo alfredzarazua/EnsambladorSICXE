@@ -20,7 +20,7 @@ inicio
 	;
 
 expresion returns[string[] value = new string[5]]
-    : simbolo instruct NEWLINE{$value=$instruct.value;}	
+    : simbolo instruct NEWLINE{$value=$instruct.value;}	| expresion2
     ;
 
 expresion2
@@ -102,7 +102,7 @@ directivo returns[string[] value = new string[4]]//los campos 2 y 3 contienen di
 normaldirec returns[string[] value = new string[3]]
 	: direcnum {$value[0]=$direcnum.value;}|direcsimb|
 	direqu{$value[1]=$direqu.value[0].ToString("X4");$value[2]=$direqu.value[1].ToString();}|
-	dirorg
+	dirorg|diruse
 	;
 
 direcnum returns[string value]
@@ -118,6 +118,9 @@ dirorg
 	: ORG CONS
 	;
 
+diruse
+	: USE (ETIQ | )
+	;
 direcsimb
 	: DIRBAS ETIQ
 	;
@@ -128,7 +131,7 @@ specdirec returns[string value]
 
 
 tipores returns[string value]
-	: 'C' '\'' ETIQ '\'' {$value = $ETIQ.text.Length.ToString();}| 'X' '\'' CONS '\''  {$value = (System.Math.Floor((double)($CONS.text.Length/2))*2).ToString();}
+	: 'C' '\'' ETIQ '\'' {$value = $ETIQ.text.Length.ToString();}| 'X' '\'' CONS '\''  {$value = (System.Math.Ceiling((double)$CONS.text.Length / 2)).ToString();}
 	;
 
 dirrsub returns[string value]
@@ -184,7 +187,7 @@ FORMATO1
 
 FORMATO34
     : ('ADD'|'COMP'|'J'|'JGT'|'JLT'|'JSUB'|'LDA'|'LDB'|'LDCH'|'LDS'|'LDT'|'LDX'|'LPS'|'MUL'|'MULF'|'RD'|'STA'|'STCH'
-	  |'SUB'|'TIX'|'WD')
+	  |'STL'|'SUB'|'TIX'|'WD')
     ;
 
 FORMATO2UNREG
@@ -239,6 +242,10 @@ ORG
 	: 'ORG'
 	;
 
+USE
+	: 'USE'
+	 ;
+
 PARENI
 	:	'('		//token de parentesis derecho
 	;
@@ -259,13 +266,15 @@ ENTRE
 	: '/'		//token de signo entre
 	;
 
+CONS
+    : ((('a'..'f')|('A'..'F')|('0'..'9'))+)('H'|)  
+    ;
+
 ETIQ
     : ('a'..'z'|'A'..'Z') ('a'..'z'|'A'..'Z'|'0'..'9')*
     ;
 
-CONS
-    : (('a'..'f'|'A'..'F'|'0'..'9')+)('H'|)  
-    ;
+
 
 NEWLINE: ('\r'? '\n' | '\r')+ ;
 

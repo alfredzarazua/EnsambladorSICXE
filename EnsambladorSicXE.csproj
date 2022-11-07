@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CalculaCodigoObjeto.cs" />
+    <Compile Include="CalculoBloques.cs" />
     <Compile Include="ErrorListener.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>

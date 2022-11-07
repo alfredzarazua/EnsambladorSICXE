@@ -286,8 +286,16 @@ namespace EnsambladorSicXE
                 }
                 else
                 {
-                    xbpe = xbpe | 0x04; xbpe = xbpe | 0x02;
-                    Error = true;
+                    if (operando > 4095)
+                    {
+                        desp = operando;
+                    }
+                    else
+                    {
+                        xbpe = xbpe | 0x04; xbpe = xbpe | 0x02;
+                        Error = true;
+                    }
+                    
                 }
 
                 instCod = instCod << 24;

@@ -21,6 +21,8 @@ namespace EnsambladorSicXE
         private bool fileIsOnDisk;
         IList<string> codigo;
         int CP;
+        int currentBloqu;
+        bool fase;
 
         private Style blue_style;
         private Style green_style;
@@ -39,7 +41,10 @@ namespace EnsambladorSicXE
             setEditorStyle();
             iniciarGridInter();
             iniciarGridTabSim();
+            iniciarGridTabBloq();
             CP = 0x00;
+            currentBloqu = 0;
+            fase = false;
         }
         private void setEditorStyle()
         {
@@ -180,12 +185,15 @@ namespace EnsambladorSicXE
             txtBoxErrores.Text = "";
             tBoxObjFile.Text = "";
             CP = 0;
+            fase = false;
+            currentBloqu = 0;
             dgridArchivo.Rows.Clear();
             dgridTabSim.Rows.Clear();
+            dgridTabBloq.Rows.Clear();
             codigo = editorCodigo.Lines;
             List<string[]> listaErrores = new List<string[]>();
             Global.Errores = listaErrores;
-            string[] row = new string[7];
+            string[] row = new string[8];
             int currentErrorNUmber = Global.Errores.Count;
             for (int i = 0; i < codigo.Count; i++)
             {
@@ -210,42 +218,50 @@ namespace EnsambladorSicXE
 
                     try
                     {
+                        string[] tabBloq = new string[4];
                         Global.CurrentLine = i;
 
                         if (i == 0)
                         {
                             parser.inicio();
+                            tabBloq = generaRenglonTabBloq("0", "Por omision", "0000", "0000");
+                            dgridTabBloq.Rows.Add(tabBloq);
                         }
-                        else if (!line.Contains("END"))
+                        /*else if (!line.Contains("END"))
                         {
                             infor = parser.expresion().value;
                         }
                         else
                         {
                             parser.expresion2();
+                        }*/
+
+                        else
+                        {
+                            infor = parser.expresion().value;
                         }
 
-                        string[] tabSimRen = new string[3];
+                        string[] tabSimRen = new string[4];
                         agregaFormato(infor, row);
 
                         row[2] = CP.ToString("X4");                        
                         string[] lineasCod = getListaToken(tokens, lex, row, ref tabSimRen);                        
-                        row[3] = lineasCod[0];
-                        row[4] = lineasCod[1];
-                        row[5] = lineasCod[2];
+                        row[4] = lineasCod[0];
+                        row[5] = lineasCod[1];
+                        row[6] = lineasCod[2];
                         agregaModo(infor, row, ref currentErrorNUmber);
 
 
-                        if (i != 0 && tabSimRen[0] != null && !row[6].Contains("Error"))
+                        if (i != 0 && tabSimRen[0] != null && !row[7].Contains("Error"))
                         {
                             tabSimRen[2] = "R";
-                            if (row[4] == "EQU")
+                            if (row[5] == "EQU")
                             {
-                                if(row[5] != "*\r\n")
+                                if(row[6] != "*\r\n")
                                 {
                                     if (Int32.Parse(infor[4]) > 2000)
                                     {
-                                        row[6] += "Error expresión invalida";
+                                        row[7] += "Error expresión invalida";
                                         tabSimRen[1] = "FFFF";
                                         tabSimRen[2] = "A";
 
@@ -264,7 +280,7 @@ namespace EnsambladorSicXE
                                         }
                                         else
                                         {
-                                            row[6] += "Error expresión invalida";
+                                            row[7] += "Error expresión invalida";
                                             tabSimRen[1] = "FFFF";
                                             tabSimRen[2] = "A";
                                         }
@@ -273,15 +289,58 @@ namespace EnsambladorSicXE
                                 }
                                 
                             }
-                            LlenaTabSimGrid(tabSimRen, ref row[6]);
+                            tabSimRen[3] = currentBloqu.ToString("X4");
+                            LlenaTabSimGrid(tabSimRen, ref row[7]);
                         }
                         calculaCP(currentErrorNUmber, infor);
-                        if(row[4] == "ORG")
+                        if(row[5] == "ORG")
                         {
-                            row[5] = row[5].Replace("\r\n", string.Empty);
-                            int tempCP = Global.HexHtoInt(row[5]);
+                            row[6] = row[6].Replace("\r\n", string.Empty);
+                            int tempCP = Global.HexHtoInt(row[6]);
                             CP = tempCP;
                         }
+
+                        else if(row[5] == "USE")
+                        {
+                            CalculoBloques cb = new CalculoBloques();
+                            cb.modificaLongitudBloque(dgridTabBloq, currentBloqu, CP);
+                            string nomBlo;
+                            if (row[6] != "\r\n")
+                            {
+                                nomBlo = row[6] = row[6].Replace("\r\n", string.Empty);
+                            }
+
+                            else nomBlo = "Por omision";
+
+                            int band = cb.insertaNuevoBloque(nomBlo, 0, 0, dgridTabBloq);
+                            if (band == -1)
+                            {
+                                CP = 0;
+                                currentBloqu = cb.regresaCantidadBloques(dgridTabBloq) - 1;
+                                row[2] = "0000";
+                                row[3] = currentBloqu.ToString();
+
+                            }
+
+                            if (band != -1)
+                            {
+                                currentBloqu = band;
+                                CP = cb.regresaLongitudBloque(dgridTabBloq, band);
+                                row[2] = CP.ToString("X4");
+                                row[3] = currentBloqu.ToString();
+                            }
+                        }
+                        else if(row[5] == "END")
+                        {
+                            CalculoBloques cb = new CalculoBloques();
+                            cb.modificaLongitudBloque(dgridTabBloq, currentBloqu, CP);
+                            currentBloqu = 0;
+                            CP = cb.regresaLongitudBloque(dgridTabBloq, currentBloqu);
+                            row[2] = CP.ToString("X4");
+                            row[3] = currentBloqu.ToString();
+
+                        }
+                        row[3] = currentBloqu.ToString();
                         llenaGridInterm(row);
                     }
                     catch (RecognitionException ele)
@@ -291,6 +350,8 @@ namespace EnsambladorSicXE
                 }
             }
 
+            CalculoBloques cd = new CalculoBloques();
+            cd.finalizaTablaBloques(dgridTabBloq);
             pasoDos();
             int tamanoFile = calculaTamano();
             CalculaCodigoObjeto archObj = new CalculaCodigoObjeto(dgridArchivo, dgridTabSim);
@@ -303,24 +364,47 @@ namespace EnsambladorSicXE
 
         private void iniciarGridInter()
         {
-            dgridArchivo.ColumnCount = 8;
+            dgridArchivo.ColumnCount = 9;
             dgridArchivo.Columns[0].Name = "Num";
             dgridArchivo.Columns[1].Name = "Formato";
             dgridArchivo.Columns[2].Name = "CP";
-            dgridArchivo.Columns[3].Name = "ETQ";
-            dgridArchivo.Columns[4].Name = "INS";
-            dgridArchivo.Columns[5].Name = "OPER";
-            dgridArchivo.Columns[6].Name = "Modo";
-            dgridArchivo.Columns[7].Name = "Codigo";
+            dgridArchivo.Columns[3].Name = "Bloque";
+            dgridArchivo.Columns[4].Name = "ETQ";
+            dgridArchivo.Columns[5].Name = "INS";
+            dgridArchivo.Columns[6].Name = "OPER";
+            dgridArchivo.Columns[7].Name = "Modo";
+            dgridArchivo.Columns[8].Name = "Codigo";
 
         }
 
         private void iniciarGridTabSim()
         {
-            dgridTabSim.ColumnCount = 3;
+            dgridTabSim.ColumnCount = 4;
             dgridTabSim.Columns[0].Name = "Simbolo";
             dgridTabSim.Columns[1].Name = "Dirección";
             dgridTabSim.Columns[2].Name = "Tipo";
+            dgridTabSim.Columns[3].Name = "Bloque";
+        }
+
+        private void iniciarGridTabBloq()
+        {
+            dgridTabBloq.ColumnCount = 4;
+            dgridTabBloq.Columns[0].Name = "No.";
+            dgridTabBloq.Columns[1].Name = "Nombre";
+            dgridTabBloq.Columns[2].Name = "Dir Inicio";
+            dgridTabBloq.Columns[3].Name = "Longitud";
+        }
+
+        private string[] generaRenglonTabBloq(string numero, string name, string inicio, string lon)
+        {
+            string[] arr = new string[4];
+            arr[0] = numero;
+            arr[1] = name;
+            arr[2] = inicio;
+            arr[3] = lon;
+
+            return arr;
+
         }
 
         private void agregaFormato(string[] value, string[] row)
@@ -416,7 +500,7 @@ namespace EnsambladorSicXE
 
         private string[] obtenUnSimbolo(string simbolo, string dir)
         {
-            string[] rengTabSim = new string[3];
+            string[] rengTabSim = new string[4];
 
             rengTabSim[0] = simbolo;
             rengTabSim[1] = dir;
@@ -428,16 +512,16 @@ namespace EnsambladorSicXE
         {
             if (value[0] != null)
             {
-                row[6] = value[0];
+                row[7] = value[0];
             }
             else
             {
-                row[6] = "---";
+                row[7] = "---";
             }
 
             if (Global.Errores.Count != currentErrorNUmber)
             {
-                row[6] += Global.Errores[Global.Errores.Count - 1][0];
+                row[7] += Global.Errores[Global.Errores.Count - 1][0];
                 currentErrorNUmber = Global.Errores.Count;
             }
         }
@@ -511,16 +595,17 @@ namespace EnsambladorSicXE
             string newFileName = filePathNofName + "\\" + fileNameNoExt + ".loc";
             using (StreamWriter writer = new StreamWriter(newFileName))
             {
-                string formatoTexto = String.Format("{0,-20}{1,-20}{2,20}{3,20}{4,20}{5,20}{6,50}{7,20}",
+                string formatoTexto = String.Format("{0,-10}{1,-10}{2,20}{3,20}{4,20}{5,20}{6,20}{7,50}{8,20}",
                             dgridArchivo.Columns[0].Name, dgridArchivo.Columns[1].Name, dgridArchivo.Columns[2].Name, dgridArchivo.Columns[3].Name,
-                            dgridArchivo.Columns[4].Name, dgridArchivo.Columns[5].Name, dgridArchivo.Columns[6].Name, dgridArchivo.Columns[7].Name);
+                            dgridArchivo.Columns[4].Name, dgridArchivo.Columns[5].Name, dgridArchivo.Columns[6].Name, dgridArchivo.Columns[7].Name, 
+                            dgridArchivo.Columns[8].Name);
 
                 writer.WriteLine(formatoTexto);
                 for (int i = 0; i < dgridArchivo.RowCount; i++)
                 {
-                    string[] renglon = new string[8];
+                    string[] renglon = new string[dgridArchivo.ColumnCount];
 
-                    for (int j = 0; j < 8; j++)
+                    for (int j = 0; j < dgridArchivo.ColumnCount; j++)
                     {
                         renglon[j] = (string)dgridArchivo.Rows[i].Cells[j].Value;
                         if (renglon[j] != null && renglon[j].Contains("\r\n"))
@@ -532,8 +617,9 @@ namespace EnsambladorSicXE
                         writer.Write("\t\t");*/
                     }
 
-                    string rengEscr = String.Format("{0,-20}{1,-20}{2,20}{3,20}{4,20}{5,20}{6,50}{7,20}",
-                            renglon[0], renglon[1], renglon[2], renglon[3], renglon[4], renglon[5], renglon[6], renglon[7]);
+                    string rengEscr = String.Format("{0,-10}{1,-10}{2,20}{3,20}{4,20}{5,20}{6,20}{7,50}{8,20}",
+                            renglon[0], renglon[1], renglon[2], renglon[3], renglon[4], renglon[5], renglon[6], renglon[7],
+                            renglon[8]);
                     writer.WriteLine(rengEscr);
                     //writer.Write("\r\n");
 
@@ -541,13 +627,14 @@ namespace EnsambladorSicXE
 
                 writer.WriteLine("TABSIM");
 
-                formatoTexto = String.Format("{0,-20}{1,-20}", dgridTabSim.Columns[0].Name, dgridTabSim.Columns[1].Name);
+                formatoTexto = String.Format("{0,-20}{1,-20}{2,-20}{3,-20}", dgridTabSim.Columns[0].Name, 
+                    dgridTabSim.Columns[1].Name, dgridTabSim.Columns[2].Name, dgridTabSim.Columns[3].Name);
                 writer.WriteLine(formatoTexto);
                 for (int i = 0; i < dgridTabSim.RowCount; i++)
                 {
-                    string[] renglon = new string[2];
+                    string[] renglon = new string[dgridTabSim.ColumnCount];
 
-                    for (int j = 0; j < 2; j++)
+                    for (int j = 0; j < dgridTabSim.ColumnCount; j++)
                     {
                         renglon[j] = (string)dgridTabSim.Rows[i].Cells[j].Value;
                         if (renglon[j].Contains("\r\n"))
@@ -556,8 +643,8 @@ namespace EnsambladorSicXE
                         }
                     }
 
-                    string rengEscr = String.Format("{0,-20}{1,-20}",
-                            renglon[0], renglon[1]);
+                    string rengEscr = String.Format("{0,-20}{1,-20}{2,-20}{3,-20}",
+                            renglon[0], renglon[1], renglon[2], renglon[3]);
                     writer.WriteLine(rengEscr);
                 }
                 writer.WriteLine("SIZE");
@@ -570,15 +657,24 @@ namespace EnsambladorSicXE
         private void pasoDos()
         {
             int regBase = 0xFFFF;
+            fase = true;
             SegundoPaso seg = new SegundoPaso();
             
             bool hasErrorCPB = false;
             for (int i = 0; i < dgridArchivo.Rows.Count - 1; i++)
             {
-                int CP = Convert.ToInt32((string)dgridArchivo.Rows[i+1].Cells[2].Value, 16);
+                int CP = 0;
+                if ((string)dgridArchivo.Rows[i + 1].Cells[3].Value == (string)dgridArchivo.Rows[i].Cells[3].Value)
+                {
+                    CP = Convert.ToInt32((string)dgridArchivo.Rows[i + 1].Cells[2].Value, 16);
+                }
+                else
+                {
+                    CP = buscaSiguienteCPBloque(i);
+                }
                 int xbpe = 0;
-                string inst = (string)dgridArchivo.Rows[i].Cells[4].Value;
-                string oper = (string)dgridArchivo.Rows[i].Cells[5].Value;
+                string inst = (string)dgridArchivo.Rows[i].Cells[5].Value;
+                string oper = (string)dgridArchivo.Rows[i].Cells[6].Value;
                 string reloc = "";
                 if (oper.Contains("\r\n"))
                 {
@@ -604,7 +700,7 @@ namespace EnsambladorSicXE
                         string formato = (string)dgridArchivo.Rows[i].Cells[1].Value;
                         if (formato == "3" || formato == "4")
                         {
-                            string modo = (string)dgridArchivo.Rows[i].Cells[6].Value;
+                            string modo = (string)dgridArchivo.Rows[i].Cells[7].Value;
                             switch (modo)
                             {
                                 case "simple":
@@ -663,7 +759,7 @@ namespace EnsambladorSicXE
                                             else
                                             {
                                                 codOp = seg.calculoError(xbpe, codOp);
-                                                dgridArchivo.Rows[i].Cells[6].Value += "-Error: No existe el simbolo en TABSIM";
+                                                dgridArchivo.Rows[i].Cells[7].Value += "-Error: No existe el simbolo en TABSIM";
                                             }
                                         }
                                     }
@@ -694,7 +790,7 @@ namespace EnsambladorSicXE
                                         else
                                         {
                                             codOp = seg.calculoError(xbpe, codOp);
-                                            dgridArchivo.Rows[i].Cells[6].Value += "-Error: No existe el simbolo en TABSIM";
+                                            dgridArchivo.Rows[i].Cells[7].Value += "-Error: No existe el simbolo en TABSIM";
                                             reloc = "";
                                         }
                                     }
@@ -724,7 +820,7 @@ namespace EnsambladorSicXE
                                         else
                                         {
                                             codOp = seg.calculoError(xbpe, codOp);
-                                            dgridArchivo.Rows[i].Cells[6].Value += "-Error: No existe el simbolo en TABSIM";
+                                            dgridArchivo.Rows[i].Cells[7].Value += "-Error: No existe el simbolo en TABSIM";
                                             reloc = "";
                                         }
 
@@ -749,7 +845,7 @@ namespace EnsambladorSicXE
                                     if (regCod[1] < 1 || regCod[1] > 16)
                                     {
                                         regCod[1] = 0xF;
-                                        dgridArchivo.Rows[i].Cells[6].Value += "Error: Operando fuera de rango";
+                                        dgridArchivo.Rows[i].Cells[7].Value += "Error: Operando fuera de rango";
                                     }
 
                                     else regCod[1] -= 1;
@@ -764,7 +860,7 @@ namespace EnsambladorSicXE
                                     if (regCod[0] < 1 || regCod[0] > 16)
                                     {
                                         regCod[0] = 0xF;
-                                        dgridArchivo.Rows[i].Cells[6].Value += "Error: Operando fuera de rango";
+                                        dgridArchivo.Rows[i].Cells[7].Value += "Error: Operando fuera de rango";
                                     }
 
                                     else regCod[0] -= 1;
@@ -799,22 +895,22 @@ namespace EnsambladorSicXE
 
 
 
-                    dgridArchivo.Rows[i].Cells[7].Value = codOp.ToString("X"+formatoGuardado);
+                    dgridArchivo.Rows[i].Cells[8].Value = codOp.ToString("X"+formatoGuardado);
                     if (hasErrorCPB)
                     {
-                        dgridArchivo.Rows[i].Cells[6].Value += "-Error: No es relativo al CP o B";
+                        dgridArchivo.Rows[i].Cells[7].Value += "-Error: No es relativo al CP o B";
                         hasErrorCPB = false;
                     }
                     else
                     {
-                        dgridArchivo.Rows[i].Cells[7].Value += reloc;
+                        dgridArchivo.Rows[i].Cells[8].Value += reloc;
                     }
                 }
 
                 else if (inst == "WORD")
                 {
                     //int hsize = (int)System.Math.Floor((double)listOper[0].Length/2);
-                    int[] res = evaluarExpresion(dgridArchivo.Rows[i].Cells[5].Value.ToString());
+                    int[] res = evaluarExpresion(dgridArchivo.Rows[i].Cells[6].Value.ToString());
                     formatoGuardado = "6";
                     //int res = 0;
                     //Global.checkIfInt(listOper[0], ref res);
@@ -826,10 +922,10 @@ namespace EnsambladorSicXE
                     }
                     else if (res[1] < 0 || res[1] > 1)
                     {
-                        dgridArchivo.Rows[i].Cells[6].Value = "Error: Expresión inválida";
+                        dgridArchivo.Rows[i].Cells[7].Value = "Error: Expresión inválida";
                         codOp = -1;
                     }
-                    dgridArchivo.Rows[i].Cells[7].Value = codOp.ToString("X" + formatoGuardado) + modif;
+                    dgridArchivo.Rows[i].Cells[8].Value = codOp.ToString("X" + formatoGuardado) + modif;
                 }
 
                 else if(inst=="BYTE")
@@ -852,7 +948,7 @@ namespace EnsambladorSicXE
                         {
                             result += allChar[j].ToString("X2");
                         }
-                        dgridArchivo.Rows[i].Cells[7].Value = result;
+                        dgridArchivo.Rows[i].Cells[8].Value = result;
                     }
                     else
                     {
@@ -865,7 +961,7 @@ namespace EnsambladorSicXE
                         int res = 0;
                         Global.checkIfInt(carOrN, ref res);
                         codOp = res;
-                        dgridArchivo.Rows[i].Cells[7].Value = codOp.ToString("X" + formatoGuardado);
+                        dgridArchivo.Rows[i].Cells[8].Value = codOp.ToString("X" + formatoGuardado);
                     }
                     
                 }
@@ -878,12 +974,12 @@ namespace EnsambladorSicXE
                         int dir = buscaTabSim(oper);
                         if(dir!=-1) regBase = dir;
                     }
-                    dgridArchivo.Rows[i].Cells[7].Value = "---";
+                    dgridArchivo.Rows[i].Cells[8].Value = "---";
                 }
 
                 else
                 {
-                    dgridArchivo.Rows[i].Cells[7].Value = "---";
+                    dgridArchivo.Rows[i].Cells[8].Value = "---";
                 }
 
             }
@@ -898,6 +994,12 @@ namespace EnsambladorSicXE
                 if ((string)dgridTabSim.Rows[i].Cells[0].Value == simbolo)
                 {
                     dir = Convert.ToInt32((string)dgridTabSim.Rows[i].Cells[1].Value, 16);
+                    if(fase == true && (string)dgridTabSim.Rows[i].Cells[2].Value != "A")
+                    {
+                        CalculoBloques cb = new CalculoBloques();
+                        int indiceBloque = Convert.ToInt32((string)dgridTabSim.Rows[i].Cells[3].Value, 16);
+                        dir += cb.regresaDirInicoBloque(dgridTabBloq, indiceBloque);
+                    }
                     break;
                 }
             }
@@ -905,16 +1007,28 @@ namespace EnsambladorSicXE
             return dir;
         }
 
+        //fase indica si estamos en el paso 1 o 2, false es 1, true es 2
         public int obtenTipoSimboloTabSim(string simbolo)
         {
             string tipo = "NA";
             int valor = 10000;
-
-            for (int i = 0; i < dgridTabSim.Rows.Count; i++)
+            int i = 0;
+            for (i = 0; i < dgridTabSim.Rows.Count; i++)
             {
                 if ((string)dgridTabSim.Rows[i].Cells[0].Value == simbolo)
                 {
-                    tipo = (string)dgridTabSim.Rows[i].Cells[2].Value;
+                    if(fase == false)
+                    {
+                        if (Convert.ToInt32((string)dgridTabSim.Rows[i].Cells[3].Value, 16) == currentBloqu)
+                        {
+                            tipo = (string)dgridTabSim.Rows[i].Cells[2].Value;
+                        }
+                    }
+                    else
+                    {
+                        tipo = (string)dgridTabSim.Rows[i].Cells[2].Value;
+                    }
+                    
                     break;
                 }
             }
@@ -958,6 +1072,22 @@ namespace EnsambladorSicXE
             parser.convertNum = new sicxeParser.ConvierteNumero(convertirNumero);
             parser.buscaTipo = new sicxeParser.obtenTipoSimboloTabSim(obtenTipoSimboloTabSim);
             return parser.exprcalc().value;
+        }
+
+        private int buscaSiguienteCPBloque(int linea)
+        {
+            int conta = 0;
+            string BloqueActual = (string)dgridArchivo.Rows[linea].Cells[3].Value;
+            for (int i = linea+1; i < dgridArchivo.Rows.Count - 1; i++)
+            {
+                if((string)dgridArchivo.Rows[i].Cells[3].Value == BloqueActual)
+                {
+                    conta = Convert.ToInt32((string)dgridArchivo.Rows[i].Cells[2].Value, 16);
+                    break;
+                }
+            }
+
+            return conta;
         }
     }
 }

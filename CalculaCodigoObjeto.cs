@@ -48,10 +48,10 @@ namespace EnsambladorSicXE
             int CPInit = Convert.ToInt32(((string)tablaArchivo.Rows[0].Cells[2].Value), 16);
             int CPLast = Convert.ToInt32(((string)tablaArchivo.Rows[tablaArchivo.RowCount - 1].Cells[2].Value), 16);
             string name = "      ";
-            if (((string)tablaArchivo.Rows[0].Cells[3].Value).Length < 6)
+            if (((string)tablaArchivo.Rows[0].Cells[4].Value).Length < 6)
             {
-                int i = 6 - ((string)tablaArchivo.Rows[0].Cells[3].Value).Length;
-                name = (string)tablaArchivo.Rows[0].Cells[3].Value;
+                int i = 6 - ((string)tablaArchivo.Rows[0].Cells[4].Value).Length;
+                name = (string)tablaArchivo.Rows[0].Cells[4].Value;
                 for (; i > 0; i--)
                 {
                     name += " ";
@@ -59,7 +59,7 @@ namespace EnsambladorSicXE
             }
             else
             {
-                name = ((string)tablaArchivo.Rows[0].Cells[3].Value).Substring(0, 6);
+                name = ((string)tablaArchivo.Rows[0].Cells[4].Value).Substring(0, 6);
             }
             nombProg = name;
             line = "H" + name + CPInit.ToString("X6") + CPLast.ToString("X6");
@@ -74,7 +74,7 @@ namespace EnsambladorSicXE
             while (linea < tablaArchivo.RowCount-1)
             {
                 linea = buscaLineaCodRegT(linea+1);
-                string ins = (string)tablaArchivo.Rows[linea].Cells[4].Value;
+                string ins = (string)tablaArchivo.Rows[linea].Cells[5].Value;
                 int iniCP = Convert.ToInt32((string)tablaArchivo.Rows[linea].Cells[2].Value, 16);
                 int size=0;
                 string TRen = "T"+iniCP.ToString("X6");
@@ -90,17 +90,17 @@ namespace EnsambladorSicXE
                         linea--;
                         break;
                     }
-                    if ((string)tablaArchivo.Rows[linea].Cells[7].Value != "---")
+                    if ((string)tablaArchivo.Rows[linea].Cells[8].Value != "---")
                     {
-                        if (((string)tablaArchivo.Rows[linea].Cells[7].Value).Contains("*"))
+                        if (((string)tablaArchivo.Rows[linea].Cells[8].Value).Contains("*"))
                         {
-                            tempT += ((string)tablaArchivo.Rows[linea].Cells[7].Value).Remove(((string)tablaArchivo.Rows[linea].Cells[7].Value).Length - 1, 1);
+                            tempT += ((string)tablaArchivo.Rows[linea].Cells[8].Value).Remove(((string)tablaArchivo.Rows[linea].Cells[8].Value).Length - 1, 1);
                         }
-                        else tempT += (string)tablaArchivo.Rows[linea].Cells[7].Value;
+                        else tempT += (string)tablaArchivo.Rows[linea].Cells[8].Value;
                     }
                     linea++;
                     if (linea == tablaArchivo.RowCount - 1) break;
-                    ins = (string)tablaArchivo.Rows[linea].Cells[4].Value;
+                    ins = (string)tablaArchivo.Rows[linea].Cells[5].Value;
                 }
                 TRen += size.ToString("X2") + tempT;
                 registrosT.Add(TRen);
@@ -116,7 +116,7 @@ namespace EnsambladorSicXE
 
             for(; linea<tablaArchivo.RowCount; linea++)
             {
-                if ((string)tablaArchivo.Rows[linea].Cells[7].Value != "---")
+                if ((string)tablaArchivo.Rows[linea].Cells[8].Value != "---")
                 {
                     //linea = Convert.ToInt32((string)tablaArchivo.Rows[linea].Cells[2].Value, 16);
                     break;
@@ -131,10 +131,10 @@ namespace EnsambladorSicXE
             List<string> regM = new List<string>();
             for(int i = 0; i<tablaArchivo.RowCount-1; i++)
             {
-                if (((string)tablaArchivo.Rows[i].Cells[7].Value).Contains("*"))
+                if (((string)tablaArchivo.Rows[i].Cells[8].Value).Contains("*"))
                 {
                     string rengRM = "M";
-                    if (((string)tablaArchivo.Rows[i].Cells[7].Value).Length==7)//registro para WORD
+                    if (((string)tablaArchivo.Rows[i].Cells[8].Value).Length==7)//registro para WORD
                     {
                         int currentCP = Convert.ToInt32((string)tablaArchivo.Rows[i].Cells[2].Value, 16);
                         rengRM += currentCP.ToString("X6") + "06" + "+" + nombProg;
@@ -154,7 +154,7 @@ namespace EnsambladorSicXE
         public string calculaE()
         {
             string regE = "E";
-            string simbolo = (string)tablaArchivo.Rows[tablaArchivo.RowCount - 1].Cells[5].Value;
+            string simbolo = (string)tablaArchivo.Rows[tablaArchivo.RowCount - 1].Cells[6].Value;
             if (simbolo.Contains("\r\n"))
             {
                 simbolo = simbolo.Remove(simbolo.Length - 2);
@@ -170,7 +170,7 @@ namespace EnsambladorSicXE
                 if (dir == -1)
                 {
                     regE += "FFFFFF";
-                    tablaArchivo.Rows[tablaArchivo.RowCount - 1].Cells[6].Value += "-Simbolo no encontrado";
+                    tablaArchivo.Rows[tablaArchivo.RowCount - 1].Cells[7].Value += "-Simbolo no encontrado";
                 }
                 else
                 {
