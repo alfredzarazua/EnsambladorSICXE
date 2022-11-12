@@ -102,7 +102,7 @@ directivo returns[string[] value = new string[4]]//los campos 2 y 3 contienen di
 normaldirec returns[string[] value = new string[3]]
 	: direcnum {$value[0]=$direcnum.value;}|direcsimb|
 	direqu{$value[1]=$direqu.value[0].ToString("X4");$value[2]=$direqu.value[1].ToString();}|
-	dirorg|diruse
+	dirorg|diruse|direxref
 	;
 
 direcnum returns[string value]
@@ -123,6 +123,10 @@ diruse
 	;
 direcsimb
 	: DIRBAS ETIQ
+	;
+
+direxref
+	: EXTREF ETIQ (',' ETIQ)* 
 	;
 
 specdirec returns[string value]
@@ -245,6 +249,10 @@ ORG
 USE
 	: 'USE'
 	 ;
+
+EXTREF
+	: 'EXTREF'
+	;
 
 PARENI
 	:	'('		//token de parentesis derecho

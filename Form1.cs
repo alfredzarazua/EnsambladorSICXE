@@ -354,7 +354,7 @@ namespace EnsambladorSicXE
             cd.finalizaTablaBloques(dgridTabBloq);
             pasoDos();
             int tamanoFile = calculaTamano();
-            CalculaCodigoObjeto archObj = new CalculaCodigoObjeto(dgridArchivo, dgridTabSim);
+            CalculaCodigoObjeto archObj = new CalculaCodigoObjeto(dgridArchivo, dgridTabSim, dgridTabBloq);
             List<string> registros = archObj.obtenArchivoObjeto();
             llenaTBoxObjFile(registros);
             guardarDocumentoErrores();
@@ -583,9 +583,11 @@ namespace EnsambladorSicXE
         private int calculaTamano()
         {
             int size = 0;
-            int a = Convert.ToInt32((string)dgridArchivo.Rows[dgridArchivo.Rows.Count - 1].Cells[2].Value, 16);
-            int b = Convert.ToInt32((string)dgridArchivo.Rows[0].Cells[2].Value, 16);
-            size = a - b;
+            //int a = Convert.ToInt32((string)dgridArchivo.Rows[dgridArchivo.Rows.Count - 1].Cells[2].Value, 16);
+            //int b = Convert.ToInt32((string)dgridArchivo.Rows[0].Cells[2].Value, 16);
+            int a = Convert.ToInt32((string) dgridTabBloq.Rows[dgridTabBloq.RowCount-1].Cells[2].Value, 16);
+            int b = Convert.ToInt32((string)dgridTabBloq.Rows[dgridTabBloq.RowCount - 1].Cells[3].Value, 16);
+            size = a + b;
             LblProgramSize.Text = size.ToString("X"); 
             return size;
         }
