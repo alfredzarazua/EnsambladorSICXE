@@ -30,18 +30,17 @@ namespace EnsambladorSicXE
         }
 
         //Retorna -1 si inserto un bloque, retorna el indice del bloque si ya existia
-        public int insertaNuevoBloque(string nombre, int dirIni, int longitud, DataGridView tablaBloques)
+        public int insertaNuevoBloque(string nombre, int dirIni, int longitud, Seccion sec)
         {
-            int flag = buscaBloques(nombre, tablaBloques);
+            int flag = buscaBloques(nombre, sec.getTabBloques());
             if (flag == -1)
             {
                 string[] row = new string[4];
-                row[0] = (tablaBloques.RowCount).ToString();
+                row[0] = (sec.getTabBloques().RowCount).ToString();
                 row[1] = nombre;
                 row[2] = dirIni.ToString("X4");
                 row[3] = longitud.ToString("X4");
-
-                tablaBloques.Rows.Add(row);
+                sec.tabBloquesAddRow(row);                
             }
 
             return flag;
@@ -79,19 +78,7 @@ namespace EnsambladorSicXE
             return flag;
         }
 
-        public void finalizaTablaBloques(DataGridView tablaBloques)
-        {
-            if (tablaBloques.RowCount > 1)
-            {
-                for(int i = 1; i< tablaBloques.RowCount; i++)
-                {
-                    tablaBloques.Rows[i].Cells[2].Value =
-                        (Convert.ToInt32((string)tablaBloques.Rows[i - 1].Cells[2].Value, 16) +
-                        Convert.ToInt32((string)tablaBloques.Rows[i - 1].Cells[3].Value, 16)).ToString("X4" +
-                        "");
-                }
-            }
-        }
+        
 
         public int regresaDirInicoBloque(DataGridView tablaBloques, int index)
         {

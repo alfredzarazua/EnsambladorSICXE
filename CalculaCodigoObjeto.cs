@@ -18,44 +18,64 @@ namespace EnsambladorSicXE
             tabBloq = gridBloques;
             nombProg = "      ";
         }
-
-        public List<string> obtenArchivoObjeto()
+        //busca el numero de linea donde empieza la seccion
+        private int buscarInicioSeccion(int numSeccion)
+        {
+            int cont = 0, linea = 0;            
+            for(int i=0; i < tablaArchivo.RowCount; i++)
+            {
+                if ((string)tablaArchivo.Rows[i].Cells[5].Value == "CSECT")
+                {
+                    cont++;
+                }
+                if (cont != numSeccion)
+                {
+                    linea++;
+                }
+                else break;               
+            }
+            return linea;
+        }
+        public List<string> obtenArchivoObjeto(int numSeccion)
         {
             List<string> arrCodObj = new List<string>();
-            string line = calculaHeader();
+            int numlinea = buscarInicioSeccion(numSeccion);
+            string line = calculaHeader(numlinea);
             arrCodObj.Add(line);
-            List<string> arrRegT = calculaT();
+            //Registros T
+            //Error en rango de valores de numLinea
+           // List<string> arrRegT = calculaT(numlinea+1);//numlinea + 1 para que inicie despues de CSECT checa rango
 
-            for(int i=0; i<arrRegT.Count; i++)
-            {
-                arrCodObj.Add(arrRegT[i]);
-            }
+            //for(int i=0; i<arrRegT.Count; i++)
+            //{
+            //    arrCodObj.Add(arrRegT[i]);
+            //}
 
-            List<string> arrRegM = calculaM();
+            List<string> arrRegM = calculaM(numlinea+1);
 
             for (int i = 0; i < arrRegM.Count; i++)
             {
                 arrCodObj.Add(arrRegM[i]);
             }
 
-            string regE = calculaE();
+            string regE = calculaE(numSeccion);
             arrCodObj.Add(regE);
 
             return arrCodObj;
         }
 
-        public string calculaHeader()
+        public string calculaHeader(int numLinea)
         {
             string line = "";
-            int CPInit = Convert.ToInt32(((string)tablaArchivo.Rows[0].Cells[2].Value), 16);
+            int CPInit = Convert.ToInt32(((string)tablaArchivo.Rows[numLinea].Cells[2].Value), 16);//0
             //int CPLast = Convert.ToInt32(((string)tablaArchivo.Rows[tablaArchivo.RowCount - 1].Cells[2].Value), 16);
             int CPLast = Convert.ToInt32((string)tabBloq.Rows[tabBloq.RowCount-1].Cells[2].Value, 16) 
                 + Convert.ToInt32((string)tabBloq.Rows[tabBloq.RowCount - 1].Cells[3].Value, 16);
             string name = "      ";
-            if (((string)tablaArchivo.Rows[0].Cells[4].Value).Length < 6)
+            if (((string)tablaArchivo.Rows[numLinea].Cells[4].Value).Length < 6)
             {
-                int i = 6 - ((string)tablaArchivo.Rows[0].Cells[4].Value).Length;
-                name = (string)tablaArchivo.Rows[0].Cells[4].Value;
+                int i = 6 - ((string)tablaArchivo.Rows[numLinea].Cells[4].Value).Length;
+                name = (string)tablaArchivo.Rows[numLinea].Cells[4].Value;
                 for (; i > 0; i--)
                 {
                     name += " ";
@@ -63,19 +83,19 @@ namespace EnsambladorSicXE
             }
             else
             {
-                name = ((string)tablaArchivo.Rows[0].Cells[4].Value).Substring(0, 6);
+                name = ((string)tablaArchivo.Rows[numLinea].Cells[4].Value).Substring(0, 6);
             }
             nombProg = name;
             line = "H" + name + CPInit.ToString("X6") + CPLast.ToString("X6");
             return line;
         }
 
-        public List<string> calculaT()
+        public List<string> calculaT(int numLinea)
         {
             List<string> registrosT = new List<string>();
-            int linea = 0;
+            int linea = numLinea;
 
-            while (linea < tablaArchivo.RowCount-1)
+            while (linea < tablaArchivo.RowCount-1 && (string)tablaArchivo.Rows[linea].Cells[5].Value!="CSECT")
             {
                 int bloq = 0;
                 linea = buscaLineaCodRegT(linea+1, ref bloq);
@@ -141,10 +161,10 @@ namespace EnsambladorSicXE
             return linea;
         }
 
-        public List<string> calculaM()
+        public List<string> calculaM(int numLinea)
         {
             List<string> regM = new List<string>();
-            for(int i = 0; i<tablaArchivo.RowCount-1; i++)
+            for(int i = numLinea; i<tablaArchivo.RowCount-1 && (string)tablaArchivo.Rows[i].Cells[5].Value!="CSECT"; i++)
             {
                 if (((string)tablaArchivo.Rows[i].Cells[8].Value).Contains("*"))
                 {
@@ -168,36 +188,39 @@ namespace EnsambladorSicXE
             return regM;
         }
 
-        public string calculaE()
+        public string calculaE(int numSeccion)
         {
-            string regE = "E";
-            string simbolo = (string)tablaArchivo.Rows[tablaArchivo.RowCount - 1].Cells[6].Value;
+            string regE = "E";            
             //int bloq = Convert.ToInt32((string)tablaArchivo.Rows[tablaArchivo.RowCount - 1].Cells[3].Value, 16);
             //int offset = Convert.ToInt32((string)tabBloq.Rows[bloq].Cells[2].Value, 16);
 
-            if (simbolo.Contains("\r\n"))
+            if(numSeccion == 0)
             {
-                simbolo = simbolo.Remove(simbolo.Length - 2);
-            }
-            if (simbolo == "")
-            {
-                int dir = buscaPrimerIns();
-                regE += dir.ToString("X6");
-            }
-            else
-            {
-                int bloque = 0;
-                int dir = buscaTabSim(simbolo, ref bloque);
-                int offset = Convert.ToInt32((string)tabBloq.Rows[bloque].Cells[2].Value, 16);
-                if (dir == -1)
+                string simbolo = (string)tablaArchivo.Rows[tablaArchivo.RowCount - 1].Cells[6].Value;
+                if (simbolo.Contains("\r\n"))
                 {
-                    regE += "FFFFFF";
-                    tablaArchivo.Rows[tablaArchivo.RowCount - 1].Cells[7].Value += "-Simbolo no encontrado";
+                    simbolo = simbolo.Remove(simbolo.Length - 2);
+                }
+                if (simbolo == "")
+                {
+                    int dir = buscaPrimerIns();
+                    regE += dir.ToString("X6");
                 }
                 else
                 {
-                    dir += offset;
-                    regE += dir.ToString("X6");
+                    int bloque = 0;
+                    int dir = buscaTabSim(simbolo, ref bloque);
+                    int offset = Convert.ToInt32((string)tabBloq.Rows[bloque].Cells[2].Value, 16);
+                    if (dir == -1)
+                    {
+                        regE += "FFFFFF";
+                        tablaArchivo.Rows[tablaArchivo.RowCount - 1].Cells[7].Value += "-Simbolo no encontrado";
+                    }
+                    else
+                    {
+                        dir += offset;
+                        regE += dir.ToString("X6");
+                    }
                 }
             }
             
