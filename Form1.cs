@@ -25,6 +25,8 @@ namespace EnsambladorSicXE
         int CP;
         int currentBloqu;
         bool fase;
+        List<string> SEporRenglon;
+        List<List<string>> SEregi;
 
         private Style blue_style;
         private Style green_style;
@@ -47,7 +49,9 @@ namespace EnsambladorSicXE
             CP = 0x00;
             currentBloqu = 0;
             fase = false;
+            SEregi = new List<List<string>>();
             secciones=new List<Seccion>();
+            SEporRenglon = new List<string>();
         }
         private void setEditorStyle()
         {
@@ -250,7 +254,7 @@ namespace EnsambladorSicXE
                             infor = parser.expresion().value;
                         }
 
-                        string[] tabSimRen = new string[4];
+                        string[] tabSimRen = new string[5];
                         agregaFormato(infor, row);
 
                         row[2] = CP.ToString("X4");                        
@@ -264,6 +268,7 @@ namespace EnsambladorSicXE
                         if (i != 0 && tabSimRen[0] != null && !row[7].Contains("Error") && !row[5].Contains("CSECT"))
                         {
                             tabSimRen[2] = "R";
+                            tabSimRen[4] = "No";
                             if (row[5] == "EQU")
                             {
                                 if(row[6] != "*\r\n")
@@ -325,6 +330,23 @@ namespace EnsambladorSicXE
                             row[2] = "0000";                            
                             currentBloqu = 0;
                             currentSect++;                            
+                        }
+                        else if (row[5] == "EXTREF")
+                        {
+                            string[] param = { "," };
+                            string[] simbolExt = row[6].Split(param, StringSplitOptions.RemoveEmptyEntries);
+
+                            foreach(string se in simbolExt)
+                            {
+                                string sime = se.Replace("\r\n", string.Empty);
+                                string[] rengExt = new string[5];
+                                rengExt[0] = sime;
+                                rengExt[1] = "-";
+                                rengExt[2] = "-";
+                                rengExt[3] = "-";
+                                rengExt[4] = "Si";
+                                LlenaTabSimGrid(secciones[currentSect], rengExt, ref row[7]);
+                            }
                         }
                         else if(row[5] == "USE")
                         {
@@ -396,7 +418,7 @@ namespace EnsambladorSicXE
             {
                 //int tamanoFile = Convert.ToInt32(seccion.tam, 16);//calculaTamano(seccion);
                 CalculaCodigoObjeto archObj = new CalculaCodigoObjeto(dgridArchivo, seccion.getTabSim(), seccion.getTabBloques());
-                List<string> registros = archObj.obtenArchivoObjeto(currentSect);
+                List<string> registros = archObj.obtenArchivoObjeto(currentSect, ref SEregi);
                 llenaTBoxObjFile(registros);                                
                 guardarDocumentoObj(registros, seccion.nombre);
                 currentSect++;
@@ -538,7 +560,7 @@ namespace EnsambladorSicXE
 
         private string[] obtenUnSimbolo(string simbolo, string dir)
         {
-            string[] rengTabSim = new string[4];
+            string[] rengTabSim = new string[5];
 
             rengTabSim[0] = simbolo;
             rengTabSim[1] = dir;
@@ -712,6 +734,7 @@ namespace EnsambladorSicXE
             for (int i = 0; i < dgridArchivo.Rows.Count - 1; i++)
             {
                 int CP = 0;
+                SEporRenglon = new List<string>();
                 if ((string)dgridArchivo.Rows[i + 1].Cells[3].Value == (string)dgridArchivo.Rows[i].Cells[3].Value)
                 {
                     CP = Convert.ToInt32((string)dgridArchivo.Rows[i + 1].Cells[2].Value, 16);
@@ -773,7 +796,19 @@ namespace EnsambladorSicXE
                                         int[] info = evaluarExpresion(operandosOrden[0]);
                                         bool esC = false;
                                         int bandCorM = seg.isM(operandosOrden[0]);
-                                        if (info[1]==1)
+                                        if (info[2] > 0)
+                                        {
+                                            for(int contaSE=0; contaSE<info[2]; contaSE++)
+                                            {
+                                                reloc += "*SE";
+                                            }
+
+                                            for(int contaR=0; contaR>info[1]; contaR++)
+                                            {
+                                                reloc += "*R";
+                                            }
+                                        }
+                                        if (info[1]==1 && info[2]==0)
                                         {
                                             operandosOrden[0] = "m";
                                             if (xbpe % 2 != 0) reloc = "*";
@@ -791,7 +826,7 @@ namespace EnsambladorSicXE
                                             }
                                         }
 
-                                        if (!seg.checkMDSimple(xbpe, operandosOrden))
+                                        if (!seg.checkMDSimple(xbpe, operandosOrden) && info[2]==0)
                                         {
                                             codOp = seg.calculoError(xbpe, codOp);
                                             dgridArchivo.Rows[i].Cells[6].Value += "-Error: No existe combinacion MD";
@@ -802,7 +837,7 @@ namespace EnsambladorSicXE
 
                                             if (info[1] < 2000)
                                             {
-                                                codOp = seg.calculaCodigoCompleto(xbpe, codOp, CP, dir, esC, regBase, ref hasErrorCPB);
+                                                codOp = seg.calculaCodigoCompleto(xbpe, codOp, CP, dir, esC, regBase, ref hasErrorCPB, info[2]);
                                             }
                                             else
                                             {
@@ -824,16 +859,29 @@ namespace EnsambladorSicXE
                                         {
                                             esC = true;
                                         }
-                                        else if (info[1] == 1)
+                                        else if (info[1] == 1 && info[2]==0)
                                         {
-                                            if (xbpe % 2 != 0) reloc = "*";
+                                            if (xbpe % 2 != 0) reloc = "*R";
+                                        }
+
+                                        if (info[2] > 0)
+                                        {
+                                            for (int contaSE = 0; contaSE < info[2]; contaSE++)
+                                            {
+                                                reloc += "*SE";
+                                            }
+
+                                            for (int contaR = 0; contaR < info[1]; contaR++)
+                                            {
+                                                reloc += "*R";
+                                            }
                                         }
 
                                         dir = info[0];
 
                                         if (info[1] < 2000)
                                         {
-                                            codOp = seg.calculaCodigoCompleto(xbpe, codOp, CP, dir, esC, regBase, ref hasErrorCPB);
+                                            codOp = seg.calculaCodigoCompleto(xbpe, codOp, CP, dir, esC, regBase, ref hasErrorCPB, info[5]);
                                         }
                                         else
                                         {
@@ -854,16 +902,29 @@ namespace EnsambladorSicXE
                                         {
                                             esC = true;
                                         }
-                                        else if(info[1] == 1)
+                                        else if(info[1] == 1 && info[2]==0)
                                         {
-                                            if (xbpe % 2 != 0) reloc = "*";
+                                            if (xbpe % 2 != 0) reloc = "*R";
+                                        }
+
+                                        if (info[2] > 0)
+                                        {
+                                            for (int contaSE = 0; contaSE < info[2]; contaSE++)
+                                            {
+                                                reloc += "*SE";
+                                            }
+
+                                            for (int contaR = 0; contaR < info[1]; contaR++)
+                                            {
+                                                reloc += "*R";
+                                            }
                                         }
 
                                         dir = info[0];
 
                                         if (info[1] <2000)
                                         {
-                                            codOp = seg.calculaCodigoCompleto(xbpe, codOp, CP, dir, esC, regBase, ref hasErrorCPB);
+                                            codOp = seg.calculaCodigoCompleto(xbpe, codOp, CP, dir, esC, regBase, ref hasErrorCPB, info[2]);
                                         }
                                         else
                                         {
@@ -964,9 +1025,21 @@ namespace EnsambladorSicXE
                     //Global.checkIfInt(listOper[0], ref res);
                     codOp = res[0];
                     string modif = "";
-                    if (res[1] == 1)
+                    if (res[2] > 0)
                     {
-                        modif = "*";
+                        for (int contaSE = 0; contaSE < res[2]; contaSE++)
+                        {
+                            modif += "*SE";
+                        }
+
+                        for (int contaR = 0; contaR < res[1]; contaR++)
+                        {
+                            modif += "*R";
+                        }
+                    }
+                    if (res[1] == 1 && res[2]==0)
+                    {
+                        modif = "*R";
                     }
                     else if (res[1] < 0 || res[1] > 1)
                     {
@@ -1033,6 +1106,10 @@ namespace EnsambladorSicXE
                 {
                     currentSect++;                    
                 }
+                if (SEporRenglon.Count > 0)
+                {
+                    SEregi.Add(SEporRenglon);
+                }
 
             }            
         }
@@ -1045,6 +1122,11 @@ namespace EnsambladorSicXE
             {
                 if ((string)secciones[currentSect].getTabSim().Rows[i].Cells[0].Value == simbolo)
                 {
+                    if ((string)secciones[currentSect].getTabSim().Rows[i].Cells[4].Value == "Si")
+                    {
+                        dir = 0;
+                        break;
+                    }
                     dir = Convert.ToInt32((string)secciones[currentSect].getTabSim().Rows[i].Cells[1].Value, 16);
                     if(fase == true && (string)secciones[currentSect].getTabSim().Rows[i].Cells[2].Value != "A")
                     {
@@ -1060,7 +1142,7 @@ namespace EnsambladorSicXE
         }
 
         //fase indica si estamos en el paso 1 o 2, false es 1, true es 2
-        public int obtenTipoSimboloTabSim(string simbolo)
+        public int obtenTipoSimboloTabSim(string simbolo, ref int se)
         {
             string tipo = "NA";
             int valor = 10000;
@@ -1071,14 +1153,30 @@ namespace EnsambladorSicXE
                 {
                     if(fase == false)
                     {
-                        if (Convert.ToInt32((string)secciones[currentSect].getTabSim().Rows[i].Cells[3].Value, 16) == currentBloqu)
+
+                        if ((string)secciones[currentSect].getTabSim().Rows[i].Cells[4].Value == "No")
                         {
-                            tipo = (string)secciones[currentSect].getTabSim().Rows[i].Cells[2].Value;
+                            if (Convert.ToInt32((string)secciones[currentSect].getTabSim().Rows[i].Cells[3].Value, 16) == currentBloqu)
+                            {
+                                tipo = (string)secciones[currentSect].getTabSim().Rows[i].Cells[2].Value;
+                            }
                         }
+                        
                     }
                     else
                     {
-                        tipo = (string)secciones[currentSect].getTabSim().Rows[i].Cells[2].Value;
+
+                        if ((string)secciones[currentSect].getTabSim().Rows[i].Cells[4].Value == "No")
+                        {
+                            tipo = (string)secciones[currentSect].getTabSim().Rows[i].Cells[2].Value;
+                        }
+                        else
+                        {
+                            tipo = "A";
+                            se = 1;
+                            SEporRenglon.Add(simbolo);
+                        }
+                        
                     }
                     
                     break;

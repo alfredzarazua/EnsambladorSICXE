@@ -36,22 +36,28 @@ namespace EnsambladorSicXE
             }
             return linea;
         }
-        public List<string> obtenArchivoObjeto(int numSeccion)
+        public List<string> obtenArchivoObjeto(int numSeccion, ref List<List<string>> simbExt)
         {
             List<string> arrCodObj = new List<string>();
             int numlinea = buscarInicioSeccion(numSeccion);
             string line = calculaHeader(numlinea);
             arrCodObj.Add(line);
+
+            List<string> arrRegRef = calculaRegRef(numlinea + 1);
+            for (int i = 0; i < arrRegRef.Count; i++)
+            {
+                arrCodObj.Add(arrRegRef[i]);
+            }
             //Registros T
             //Error en rango de valores de numLinea
-           // List<string> arrRegT = calculaT(numlinea+1);//numlinea + 1 para que inicie despues de CSECT checa rango
+            List<string> arrRegT = calculaT(numlinea+1);//numlinea + 1 para que inicie despues de CSECT checa rango
 
-            //for(int i=0; i<arrRegT.Count; i++)
-            //{
-            //    arrCodObj.Add(arrRegT[i]);
-            //}
+            for(int i=0; i<arrRegT.Count; i++)
+            {
+                arrCodObj.Add(arrRegT[i]);
+            }
 
-            List<string> arrRegM = calculaM(numlinea+1);
+            List<string> arrRegM = calculaM(numlinea+1, ref simbExt);
 
             for (int i = 0; i < arrRegM.Count; i++)
             {
@@ -95,21 +101,22 @@ namespace EnsambladorSicXE
             List<string> registrosT = new List<string>();
             int linea = numLinea;
 
-            while (linea < tablaArchivo.RowCount-1 && (string)tablaArchivo.Rows[linea].Cells[5].Value!="CSECT")
+            while (linea < tablaArchivo.RowCount - 1)
             {
                 int bloq = 0;
-                linea = buscaLineaCodRegT(linea+1, ref bloq);
+                linea = buscaLineaCodRegT(linea, ref bloq);
+                if (linea == -1) break;
                 string ins = (string)tablaArchivo.Rows[linea].Cells[5].Value;
                 int offset = Convert.ToInt32((string)tabBloq.Rows[bloq].Cells[2].Value, 16);
-                int iniCP = Convert.ToInt32((string)tablaArchivo.Rows[linea].Cells[2].Value, 16)+offset;
-                int size=0;
-                string TRen = "T"+iniCP.ToString("X6");
+                int iniCP = Convert.ToInt32((string)tablaArchivo.Rows[linea].Cells[2].Value, 16) + offset;
+                int size = 0;
+                string TRen = "T" + iniCP.ToString("X6");
                 string tempT = "";
-                while(ins != "RESB" && ins != "RESW" && ins != "USE")
+                while (ins != "RESB" && ins != "RESW" && ins != "USE" && ins != "ORG" && ins != "CSECT")
                 {
                     int currentCP = Convert.ToInt32((string)tablaArchivo.Rows[linea].Cells[2].Value, 16);
                     int nextCP = 0;
-                    if(tablaArchivo.Rows[linea].Cells[3].Value == tablaArchivo.Rows[linea + 1].Cells[3].Value)
+                    if ((string)tablaArchivo.Rows[linea].Cells[3].Value == (string)tablaArchivo.Rows[linea + 1].Cells[3].Value)
                     {
                         nextCP = Convert.ToInt32((string)tablaArchivo.Rows[linea + 1].Cells[2].Value, 16);
                     }
@@ -117,9 +124,8 @@ namespace EnsambladorSicXE
                     {
                         nextCP = buscaSiguienteCPBloque(linea);
                     }
-                    
                     size += (nextCP - currentCP);
-                    if(size > 30)
+                    if (size > 30)
                     {
                         size -= (nextCP - currentCP);
                         linea--;
@@ -129,16 +135,24 @@ namespace EnsambladorSicXE
                     {
                         if (((string)tablaArchivo.Rows[linea].Cells[8].Value).Contains("*"))
                         {
-                            tempT += ((string)tablaArchivo.Rows[linea].Cells[8].Value).Remove(((string)tablaArchivo.Rows[linea].Cells[8].Value).Length - 1, 1);
+                            string[] sep = { "*" };
+                            string[] simbolosSe = ((string)tablaArchivo.Rows[linea].Cells[8].Value).Split(sep, StringSplitOptions.RemoveEmptyEntries);
+                            tempT = simbolosSe[0];
+                            //tempT += ((string)tablaArchivo.Rows[linea].Cells[8].Value).Remove(((string)tablaArchivo.Rows[linea].Cells[8].Value).Length - 1, 1);
                         }
                         else tempT += (string)tablaArchivo.Rows[linea].Cells[8].Value;
                     }
                     linea++;
                     if (linea == tablaArchivo.RowCount - 1) break;
                     ins = (string)tablaArchivo.Rows[linea].Cells[5].Value;
+
                 }
                 TRen += size.ToString("X2") + tempT;
                 registrosT.Add(TRen);
+                /*if (ins == "CSECT" || (linea + 1) < tablaArchivo.RowCount && (string)tablaArchivo.Rows[linea + 1].Cells[5].Value == "CSECT")
+                {
+                    break;
+                }*/
             }
 
 
@@ -156,32 +170,69 @@ namespace EnsambladorSicXE
                     //linea = Convert.ToInt32((string)tablaArchivo.Rows[linea].Cells[2].Value, 16);
                     break;
                 }
+                if((string)tablaArchivo.Rows[linea].Cells[5].Value == "CSECT")
+                {
+                    linea = -1;
+                    break;
+                }
             }
-            bloq = Convert.ToInt32((string) tablaArchivo.Rows[linea].Cells[3].Value, 16);
+            if(linea != -1)
+            {
+                bloq = Convert.ToInt32((string)tablaArchivo.Rows[linea].Cells[3].Value, 16);
+            }
+            
             return linea;
         }
 
-        public List<string> calculaM(int numLinea)
+        public List<string> calculaM(int numLinea, ref List<List<string>> simbExt)
         {
             List<string> regM = new List<string>();
             for(int i = numLinea; i<tablaArchivo.RowCount-1 && (string)tablaArchivo.Rows[i].Cells[5].Value!="CSECT"; i++)
             {
                 if (((string)tablaArchivo.Rows[i].Cells[8].Value).Contains("*"))
                 {
-                    string rengRM = "M";
-                    int bloq = Convert.ToInt32((string)tablaArchivo.Rows[i].Cells[3].Value, 16);
-                    int offset = Convert.ToInt32((string)tabBloq.Rows[bloq].Cells[2].Value, 16);
-                    if (((string)tablaArchivo.Rows[i].Cells[8].Value).Length==7)//registro para WORD
+                    string[] sep = { "*" };
+                    string[] simbolorRegM = ((string)tablaArchivo.Rows[i].Cells[8].Value).Split(sep, StringSplitOptions.RemoveEmptyEntries);
+
+                    bool haySE = false;
+                    List<string> renglonSE = new List<string>();
+                    for (int j = 1; j< simbolorRegM.Length; j++)
                     {
-                        int currentCP = Convert.ToInt32((string)tablaArchivo.Rows[i].Cells[2].Value, 16)+offset;
-                        rengRM += currentCP.ToString("X6") + "06" + "+" + nombProg;
+                        string rengRM = "M";
+                        
+                        int bloq = Convert.ToInt32((string)tablaArchivo.Rows[i].Cells[3].Value, 16);
+                        int offset = Convert.ToInt32((string)tabBloq.Rows[bloq].Cells[2].Value, 16);
+                        string nomSimb = "";
+                        
+                        if (simbolorRegM[j] == "SE")
+                        {
+                            if (haySE == false)
+                            {
+                                haySE = true;
+                                renglonSE = simbExt[0];
+                                simbExt.RemoveAt(0);
+                            }
+                            nomSimb = renglonSE[0];
+                            renglonSE.RemoveAt(0);
+                        }
+                        else
+                        {
+                            nomSimb = nombProg;
+                        }
+                        if ((string)tablaArchivo.Rows[i].Cells[5].Value == "WORD")
+                        {
+                            int currentCP = Convert.ToInt32((string)tablaArchivo.Rows[i].Cells[2].Value, 16) + offset;
+                            rengRM += currentCP.ToString("X6") + "06" + "+" + nomSimb;
+                        }
+                        else
+                        {
+                            int currentCP = Convert.ToInt32((string)tablaArchivo.Rows[i].Cells[2].Value, 16) + 1 + offset;
+                            rengRM += currentCP.ToString("X6") + "05" + "+" + nomSimb;
+                        }
+                        regM.Add(rengRM);
                     }
-                    else//registro para formato 4
-                    {
-                        int currentCP = Convert.ToInt32((string)tablaArchivo.Rows[i].Cells[2].Value, 16) + 1 + offset;
-                        rengRM += currentCP.ToString("X6") + "05" + "+" + nombProg;
-                    }                    
-                    regM.Add(rengRM);
+                  
+                    
                 }
             }
 
@@ -225,6 +276,119 @@ namespace EnsambladorSicXE
             }
             
             return regE;
+        }
+
+        public List<string> calculaRegRef(int numLinea)
+        {
+            List<string> lineaRef = new List<string>();
+
+            for (int i = numLinea; i < tablaArchivo.RowCount - 1 && (string)tablaArchivo.Rows[i].Cells[5].Value != "CSECT"; i++)
+            {
+                if((string)tablaArchivo.Rows[i].Cells[5].Value == "EXTDEF")
+                {
+                    List<string> regD = calculaD(i);
+
+                    foreach(string rD in regD)
+                    {
+                        lineaRef.Add(rD);
+                    }
+                }
+
+                if ((string)tablaArchivo.Rows[i].Cells[5].Value == "EXTREF")
+                {
+                    List<string> regR = calculaR(i);
+
+                    foreach (string rR in regR)
+                    {
+                        lineaRef.Add(rR);
+                    }
+                }
+            }
+
+            return lineaRef;
+        }
+
+        public List<string> calculaD(int numLinea)
+        {
+            string expotOp = (string)tablaArchivo.Rows[numLinea].Cells[6].Value;
+            string[] esp = { "," };
+            string[] simbD = expotOp.Split(esp, StringSplitOptions.RemoveEmptyEntries);
+            List<string> lineasD = new List<string>();
+            int limit = 6;
+            string renglonD = "D";
+            for(int i = 0; i< simbD.Length; i++)
+            {
+                simbD[i] = simbD[i].Replace("\r\n", string.Empty);
+                int bk = 0;
+                string simName = "";
+                int dir = buscaTabSim(simbD[i], ref bk);
+                if (simbD[i].Length < 6)
+                {
+                    int conta = 6 - simbD[i].Length;
+                    simName = simbD[i];
+                    for(; conta > 0; conta--)
+                    {
+                        simName += " ";
+                    }
+                }
+                else
+                {
+                    simName = simbD[i].Substring(0, 6);
+                }
+
+                renglonD += simName + dir.ToString("X6");
+
+                if (i == limit - 1)
+                {
+                    lineasD.Add(renglonD);
+                    renglonD = "D";
+                }
+            }
+            lineasD.Add(renglonD);
+
+            return lineasD;
+
+        }
+
+        public List<string> calculaR(int numLinea)
+        {
+            string expotOp = (string)tablaArchivo.Rows[numLinea].Cells[6].Value;
+            string[] esp = { "," };
+            string[] simbR = expotOp.Split(esp, StringSplitOptions.RemoveEmptyEntries);
+            List<string> lineasR = new List<string>();
+            int limit = 6;
+            string renglonR = "R";
+            for (int i = 0; i < simbR.Length; i++)
+            {
+                simbR[i] = simbR[i].Replace("\r\n", string.Empty);
+                int bk = 0;
+                string simName = "";
+                if (simbR[i].Length < 6)
+                {
+                    int conta = 6 - simbR[i].Length;
+                    simName = simbR[i];
+                    for (; conta > 0; conta--)
+                    {
+                        simName += " ";
+                    }
+                }
+                else
+                {
+                    simName = simbR[i].Substring(0, 6);
+                }
+
+                renglonR += simName;
+
+                if (i == limit - 1)
+                {
+                    lineasR.Add(renglonR);
+                    renglonR = "R";
+                }
+            }
+            lineasR.Add(renglonR);
+
+            return lineasR;
+
         }
 
         public int buscaTabSim(string simbolo, ref int bloque)

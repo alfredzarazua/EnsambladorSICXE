@@ -81,11 +81,12 @@ namespace EnsambladorSicXE
                 
         private void iniciarGridTabSim()
         {
-            tabSim.ColumnCount = 4;
+            tabSim.ColumnCount = 5;
             tabSim.Columns[0].Name = "Simbolo";
             tabSim.Columns[1].Name = "Dirección";
             tabSim.Columns[2].Name = "Tipo";
             tabSim.Columns[3].Name = "Bloque";
+            tabSim.Columns[4].Name = "S.E.";
         }
 
         private void iniciarGridTabBloq()

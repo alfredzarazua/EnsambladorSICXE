@@ -226,25 +226,17 @@ namespace EnsambladorSicXE
         }
 
         public int calculaCodigoCompleto(int xbpe, int instCod, int CP, int operando, bool C, int regBase,
-            ref bool Error)
+            ref bool Error, int simbolosExternos)
         {
             int desp = 0;
             int finalCodObj = 0;
-            if (xbpe % 2 == 0)
+            if (simbolosExternos > 0)
             {
-                desp = 0xFFF;
-                finalCodObj = 0x000000;
-                if (C)
+                if (xbpe % 2 == 0)
                 {
-                    if(operando<0 || operando > 4095)
-                    {
-                        Error = true;
-                        xbpe = xbpe | 0x04; xbpe = xbpe | 0x02;
-                    }
-                    else desp = operando;
-                }
-                else
-                {
+                    desp = 0xFFF;
+                    desp = operando;
+                    finalCodObj = 0x000000;
                     if (esRelativoCP(ref desp, CP, operando))
                     {
                         xbpe = xbpe | 0x02;
@@ -266,43 +258,102 @@ namespace EnsambladorSicXE
                         Error = true;
                     }
 
-                    
-                }
+                    if (desp == 0xFFF) desp = 0xFFF;
+                    instCod = instCod << 16;
+                    xbpe = xbpe << 12;
+                    finalCodObj = finalCodObj | instCod;
+                    finalCodObj = finalCodObj | xbpe;
+                    finalCodObj = finalCodObj | desp;
 
-                if (desp == 0xFFF) desp = 0xFFF;
-                instCod = instCod << 16;
-                xbpe = xbpe << 12;
-                finalCodObj = finalCodObj | instCod;
-                finalCodObj = finalCodObj | xbpe;
-                finalCodObj = finalCodObj | desp;
-
-            }
-            else
-            {
-                desp = 0xFFFFF;
-                if (!C)
-                {
-                    desp = operando;
                 }
                 else
                 {
-                    if (operando > 4095)
+                    desp = 0xFFFFF;
+
+                    desp = operando;
+                    instCod = instCod << 24;
+                    xbpe = xbpe << 20;
+                    finalCodObj = finalCodObj | instCod;
+                    finalCodObj = finalCodObj | xbpe;
+                    finalCodObj = finalCodObj | desp;
+                }
+            }
+            else
+            {
+                if (xbpe % 2 == 0)
+                {
+                    desp = 0xFFF;
+                    finalCodObj = 0x000000;
+                    if (C)
+                    {
+                        if (operando < 0 || operando > 4095)
+                        {
+                            Error = true;
+                            xbpe = xbpe | 0x04; xbpe = xbpe | 0x02;
+                        }
+                        else desp = operando;
+                    }
+                    else
+                    {
+                        if (esRelativoCP(ref desp, CP, operando))
+                        {
+                            xbpe = xbpe | 0x02;
+                            if (desp < 0)
+                            {
+                                desp = Math.Abs(desp);
+                                desp = desp ^ 0xFFF;
+                                desp = desp + 1;
+                            }
+
+                        }
+                        else if (esRelativoBASE(ref desp, regBase, operando))
+                        {
+                            xbpe = xbpe | 0x04;
+                        }
+                        else
+                        {
+                            xbpe = xbpe | 0x04; xbpe = xbpe | 0x02;
+                            Error = true;
+                        }
+
+
+                    }
+
+                    if (desp == 0xFFF) desp = 0xFFF;
+                    instCod = instCod << 16;
+                    xbpe = xbpe << 12;
+                    finalCodObj = finalCodObj | instCod;
+                    finalCodObj = finalCodObj | xbpe;
+                    finalCodObj = finalCodObj | desp;
+
+                }
+                else
+                {
+                    desp = 0xFFFFF;
+                    if (!C)
                     {
                         desp = operando;
                     }
                     else
                     {
-                        xbpe = xbpe | 0x04; xbpe = xbpe | 0x02;
-                        Error = true;
-                    }
-                    
-                }
+                        if (operando > 4095)
+                        {
+                            desp = operando;
+                        }
+                        else
+                        {
+                            xbpe = xbpe | 0x04; xbpe = xbpe | 0x02;
+                            Error = true;
+                        }
 
-                instCod = instCod << 24;
-                xbpe = xbpe << 20;
-                finalCodObj = finalCodObj | instCod;
-                finalCodObj = finalCodObj | xbpe;
-                finalCodObj = finalCodObj | desp;
+                    }
+
+                    instCod = instCod << 24;
+                    xbpe = xbpe << 20;
+                    finalCodObj = finalCodObj | instCod;
+                    finalCodObj = finalCodObj | xbpe;
+                    finalCodObj = finalCodObj | desp;
+                }
             }
 
             return finalCodObj;
