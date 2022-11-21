@@ -118,6 +118,7 @@ namespace EnsambladorSicXE
             fileIsOnDisk = false;
             Text = "Ensamblador["+fileName+".xe]";
             editorCodigo.Enabled = true;
+            clearForm();
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -175,7 +176,8 @@ namespace EnsambladorSicXE
                     foreach (string str in lineas)
                     {
                         editorCodigo.Text += str + Environment.NewLine;
-                    }                    
+                    }
+                    clearForm();
                 }
                 catch (IOException ex)
                 {
@@ -187,10 +189,16 @@ namespace EnsambladorSicXE
         {
             return CP;
         }
-        private void button2_Click(object sender, EventArgs e)
+        private void clearForm()
         {
+            dgridArchivo.Rows.Clear();
+            panelTabSim.Controls.Clear();
             txtBoxErrores.Text = "";
             tBoxObjFile.Text = "";
+        }
+        private void button2_Click(object sender, EventArgs e)
+        {
+            clearForm();
             CP = 0;
             fase = false;
             currentBloqu = 0;
