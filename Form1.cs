@@ -39,6 +39,7 @@ namespace EnsambladorSicXE
         private String regex_number = "([ \t]|[\n]|['@']|['#'])+(([a-fA-F0-9]+(h|H))|([0-9]+))([ \t]+|(\r\n))";
         private String regex_directive = "([ \t]|[\n])+(START|END)([ \t]+|(\r\n))";
         private String regex_directive2 = "([ \t]|[\n])+(BYTE|WORD|RESB|RESW|BASE|EQU|ORG|CSECT|EXTDEF|EXTREF|USE)([ \t]+|(\r\n))";
+        Cargador car;
         public Form1()
         {
             InitializeComponent();
@@ -52,7 +53,25 @@ namespace EnsambladorSicXE
             SEregi = new List<List<string>>();
             secciones=new List<Seccion>();
             SEporRenglon = new List<string>();
+            car = new Cargador();
+            initObjFileGrid();
         }
+
+        private void initObjFileGrid()
+        {
+            ObjFileGrid.ColumnCount = 2;
+            ObjFileGrid.Columns[0].Name = "Path";
+            ObjFileGrid.Columns[1].Name = "Archivo";
+            ObjFileGrid.Columns[0].Visible = false;
+
+            DataGridViewButtonColumn btn = new DataGridViewButtonColumn();
+            btn.HeaderText = "Accion";
+            btn.Text = "Eliminar";
+            btn.Name = "btn";
+            btn.UseColumnTextForButtonValue=true;
+            ObjFileGrid.Columns.Add(btn);
+        }
+
         private void setEditorStyle()
         {
             SolidBrush blue_brush = new SolidBrush(Color.FromArgb(31, 97, 141));
@@ -702,8 +721,9 @@ namespace EnsambladorSicXE
                     writer.WriteLine("Seccion " + seccion.nombre);
                     writer.WriteLine("Tamaño de la seccion ");
                     writer.WriteLine(seccion.tam+"H Bytes");
-                    formatoTexto = String.Format("{0,-20}{1,-20}{2,-20}{3,-20}", seccion.getTabSim().Columns[0].Name,
-                        seccion.getTabSim().Columns[1].Name, seccion.getTabSim().Columns[2].Name, seccion.getTabSim().Columns[3].Name);
+                    formatoTexto = String.Format("{0,-20}{1,-20}{2,-20}{3,-20}{4,-20}", seccion.getTabSim().Columns[0].Name,
+                        seccion.getTabSim().Columns[1].Name, seccion.getTabSim().Columns[2].Name, seccion.getTabSim().Columns[3].Name,
+                        seccion.getTabSim().Columns[4].Name);
                     writer.WriteLine(formatoTexto);
                     for (int i = 0; i < seccion.getTabSim().RowCount; i++)
                     {
@@ -718,8 +738,8 @@ namespace EnsambladorSicXE
                             }
                         }
 
-                        string rengEscr = String.Format("{0,-20}{1,-20}{2,-20}{3,-20}",
-                                renglon[0], renglon[1], renglon[2], renglon[3]);
+                        string rengEscr = String.Format("{0,-20}{1,-20}{2,-20}{3,-20}{4,-20}",
+                                renglon[0], renglon[1], renglon[2], renglon[3], renglon[4]);
                         writer.WriteLine(rengEscr);
                     }
                 }                
@@ -1223,6 +1243,43 @@ namespace EnsambladorSicXE
             }
             tBoxObjFile.AppendText(Environment.NewLine);
             tBoxObjFile.AppendText(Environment.NewLine);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog OpenFile = new OpenFileDialog
+            {
+                //InitialDirectory = Application.StartupPath,
+                DefaultExt = ".obj"
+            };
+            //OpenFile.Filter = "Sic-xe files (*.xe)|*.xe|All files (*.*)|*.*";
+            if (OpenFile.ShowDialog() == DialogResult.OK)
+            {
+                var namefileFull = OpenFile.FileName;
+                var namefileNoExt = Path.GetFileNameWithoutExtension(OpenFile.FileName);
+                try
+                {
+                    car.addFile(namefileFull);
+                    string[] row = { namefileFull, namefileNoExt };
+                    ObjFileGrid.Rows.Add(row);
+                }
+                catch (IOException ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                }
+            }
+        }
+
+        private void ObjFileGrid_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if(e.ColumnIndex == ObjFileGrid.ColumnCount - 1)
+            {
+                if(e.RowIndex > -1)
+                {
+                    ObjFileGrid.Rows.RemoveAt(e.RowIndex);
+                }
+               
+            }
         }
 
         private int[] evaluarExpresion(string exp)
