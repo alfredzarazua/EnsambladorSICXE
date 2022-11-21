@@ -38,7 +38,7 @@ namespace EnsambladorSicXE
         private String regex_inst = "([ \t]|[\n]|['+'])+(ADD|ADDF|AND|COMP|COMPF|DIV|DIVF|J|JEQ|JGT|JLT|JSUB|LDA|LDB|LDCH|LDF|LDL|LDS|LDX|LPS|MUL|MULF|OR|RD|RSUB|SSK|STA|STB|STCH|STF|STI|STL|STS|STSW|STT|STX|SUB|SUBF|TD|TIX|WD|ADDR|SUBR|COMPR|DIVR|MULR|RMO|FIX|FLOAT|HIO|NORM|SIO|TIO|CLEAR|SHIFTR|SHIFTL|TIXR|SVC)([ \t]+|(\r\n))";
         private String regex_number = "([ \t]|[\n]|['@']|['#'])+(([a-fA-F0-9]+(h|H))|([0-9]+))([ \t]+|(\r\n))";
         private String regex_directive = "([ \t]|[\n])+(START|END)([ \t]+|(\r\n))";
-        private String regex_directive2 = "([ \t]|[\n])+(BYTE|WORD|RESB|RESW|BASE|EQU|ORG)([ \t]+|(\r\n))";
+        private String regex_directive2 = "([ \t]|[\n])+(BYTE|WORD|RESB|RESW|BASE|EQU|ORG|CSECT|EXTDEF|EXTREF|USE)([ \t]+|(\r\n))";
         public Form1()
         {
             InitializeComponent();
@@ -383,7 +383,7 @@ namespace EnsambladorSicXE
                             CalculoBloques cb = new CalculoBloques();
                             cb.modificaLongitudBloque(secciones[currentSect].getTabBloques(), currentBloqu, CP);
                             currentBloqu = 0;
-                            CP = cb.regresaLongitudBloque(secciones[currentSect].getTabBloques(), currentBloqu);
+                            CP = cb.regresaLongitudBloque(secciones[0].getTabBloques(), currentBloqu);
                             row[2] = CP.ToString("X4");
                             row[3] = currentBloqu.ToString();
                             finalizaTablaBloques(secciones[currentSect].getTabBloques());                                            
