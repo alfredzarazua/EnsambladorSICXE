@@ -314,7 +314,7 @@ namespace EnsambladorSicXE
                         do
                         {
                             aux = stack.Pop();
-                        }while (aux != "(");
+                        }while (aux != "(" && stack.Count > 0);
                         break;
                 } 
                 if(currToken == simb && tokens[i-1] == "-")
