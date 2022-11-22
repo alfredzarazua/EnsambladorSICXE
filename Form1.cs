@@ -53,8 +53,11 @@ namespace EnsambladorSicXE
             SEregi = new List<List<string>>();
             secciones=new List<Seccion>();
             SEporRenglon = new List<string>();
-            car = new Cargador();
+            car = new Cargador(0);
             initObjFileGrid();
+            initdGridMemoria();
+            initdGridTABSE();
+            numBoxDirCarg.Hexadecimal = true;
         }
 
         private void initObjFileGrid()
@@ -70,6 +73,37 @@ namespace EnsambladorSicXE
             btn.Name = "btn";
             btn.UseColumnTextForButtonValue=true;
             ObjFileGrid.Columns.Add(btn);
+        }
+
+        private void initdGridMemoria()
+        {
+            dGridMemoria.ColumnCount = 16;
+            dGridMemoria.Columns[0].Name = "0";
+            dGridMemoria.Columns[1].Name = "1";
+            dGridMemoria.Columns[2].Name = "2";
+            dGridMemoria.Columns[3].Name = "3";
+            dGridMemoria.Columns[4].Name = "4";
+            dGridMemoria.Columns[5].Name = "5";
+            dGridMemoria.Columns[6].Name = "6";
+            dGridMemoria.Columns[7].Name = "7";
+            dGridMemoria.Columns[8].Name = "8";
+            dGridMemoria.Columns[9].Name = "9";
+            dGridMemoria.Columns[10].Name = "A";
+            dGridMemoria.Columns[11].Name = "B";
+            dGridMemoria.Columns[12].Name = "C";
+            dGridMemoria.Columns[13].Name = "D";
+            dGridMemoria.Columns[14].Name = "E";
+            dGridMemoria.Columns[15].Name = "F";
+        }
+
+        private void initdGridTABSE()
+        {
+            dGridTABSE.ColumnCount = 4;
+            dGridTABSE.Columns[0].Name = "Seccion";
+            dGridTABSE.Columns[1].Name = "Simbolo";
+            dGridTABSE.Columns[2].Name = "Direccion";
+            dGridTABSE.Columns[3].Name = "Longitud";
+
         }
 
         private void setEditorStyle()
@@ -1074,7 +1108,13 @@ namespace EnsambladorSicXE
                         dgridArchivo.Rows[i].Cells[7].Value = "Error: Expresión inválida";
                         codOp = -1;
                     }
-                    dgridArchivo.Rows[i].Cells[8].Value = codOp.ToString("X" + formatoGuardado) + modif;
+                    string recorte = codOp.ToString("X" + formatoGuardado);
+                    if (recorte.Length > Convert.ToInt32(formatoGuardado))
+                    {
+                        int offset = recorte.Length - Convert.ToInt32(formatoGuardado);
+                        recorte = recorte.Substring(offset, Convert.ToInt32(formatoGuardado));
+                    }
+                    dgridArchivo.Rows[i].Cells[8].Value = recorte + modif;
                 }
 
                 else if(inst=="BYTE")
@@ -1282,6 +1322,28 @@ namespace EnsambladorSicXE
             }
         }
 
+        private void cargarButton_Click(object sender, EventArgs e)
+        {
+            //ObjFileGrid.Rows.Clear();
+            dGridMemoria.Rows.Clear();
+            dGridTABSE.Rows.Clear();
+            car = new Cargador((int)numBoxDirCarg.Value);
+            for (int i = 0; i<ObjFileGrid.RowCount; i++)
+            {
+                try
+                {
+                    string[] lineas = File.ReadAllLines((string)ObjFileGrid.Rows[i].Cells[0].Value);
+                    car.cargadorAlgoritmo(dGridMemoria, lineas);
+                    
+                }
+                catch(IOException ex)
+                {
+
+                }
+            }
+            llenatabSe(car.Tabse);
+        }
+
         private int[] evaluarExpresion(string exp)
         {
             sicxeLexer lex = new sicxeLexer(new AntlrInputStream(exp + Environment.NewLine));
@@ -1359,6 +1421,14 @@ namespace EnsambladorSicXE
                 panelTabSim.Controls.Add(seccion.getTabSim());
                 panelTabSim.Controls.Add(info2);
                 panelTabSim.Controls.Add(seccion.getTabBloques());
+            }
+        }
+
+        private void llenatabSe(List<string[]> strtabse) 
+        {
+            for(int i = 0; i<strtabse.Count; i++)
+            {
+                dGridTABSE.Rows.Add(strtabse[i]);
             }
         }
     }

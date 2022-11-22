@@ -51,18 +51,24 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.dGridMemoria = new System.Windows.Forms.DataGridView();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.numBoxDirCarg = new System.Windows.Forms.NumericUpDown();
+            this.cargarButton = new System.Windows.Forms.Button();
             this.ObjFileGrid = new System.Windows.Forms.DataGridView();
             this.addObjFile = new System.Windows.Forms.Button();
-            this.cargarButton = new System.Windows.Forms.Button();
+            this.dGridTABSE = new System.Windows.Forms.DataGridView();
             this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgridArchivo)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.editorCodigo)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dGridMemoria)).BeginInit();
             this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numBoxDirCarg)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ObjFileGrid)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dGridTABSE)).BeginInit();
             this.SuspendLayout();
             // 
             // toolStrip1
@@ -304,6 +310,8 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.dGridTABSE);
+            this.tabPage2.Controls.Add(this.dGridMemoria);
             this.tabPage2.Controls.Add(this.groupBox1);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
@@ -312,8 +320,18 @@
             this.tabPage2.Text = "Cargador";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
+            // dGridMemoria
+            // 
+            this.dGridMemoria.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dGridMemoria.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dGridMemoria.Location = new System.Drawing.Point(419, 57);
+            this.dGridMemoria.Name = "dGridMemoria";
+            this.dGridMemoria.Size = new System.Drawing.Size(915, 150);
+            this.dGridMemoria.TabIndex = 1;
+            // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.numBoxDirCarg);
             this.groupBox1.Controls.Add(this.cargarButton);
             this.groupBox1.Controls.Add(this.ObjFileGrid);
             this.groupBox1.Controls.Add(this.addObjFile);
@@ -323,6 +341,28 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Seleccionar archivos";
+            // 
+            // numBoxDirCarg
+            // 
+            this.numBoxDirCarg.Location = new System.Drawing.Point(229, 48);
+            this.numBoxDirCarg.Maximum = new decimal(new int[] {
+            1048574,
+            0,
+            0,
+            0});
+            this.numBoxDirCarg.Name = "numBoxDirCarg";
+            this.numBoxDirCarg.Size = new System.Drawing.Size(120, 20);
+            this.numBoxDirCarg.TabIndex = 4;
+            // 
+            // cargarButton
+            // 
+            this.cargarButton.Location = new System.Drawing.Point(6, 295);
+            this.cargarButton.Name = "cargarButton";
+            this.cargarButton.Size = new System.Drawing.Size(75, 23);
+            this.cargarButton.TabIndex = 3;
+            this.cargarButton.Text = "Cargar";
+            this.cargarButton.UseVisualStyleBackColor = true;
+            this.cargarButton.Click += new System.EventHandler(this.cargarButton_Click);
             // 
             // ObjFileGrid
             // 
@@ -346,14 +386,13 @@
             this.addObjFile.UseVisualStyleBackColor = true;
             this.addObjFile.Click += new System.EventHandler(this.button1_Click);
             // 
-            // cargarButton
+            // dGridTABSE
             // 
-            this.cargarButton.Location = new System.Drawing.Point(6, 295);
-            this.cargarButton.Name = "cargarButton";
-            this.cargarButton.Size = new System.Drawing.Size(75, 23);
-            this.cargarButton.TabIndex = 3;
-            this.cargarButton.Text = "Cargar";
-            this.cargarButton.UseVisualStyleBackColor = true;
+            this.dGridTABSE.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dGridTABSE.Location = new System.Drawing.Point(9, 413);
+            this.dGridTABSE.Name = "dGridTABSE";
+            this.dGridTABSE.Size = new System.Drawing.Size(404, 150);
+            this.dGridTABSE.TabIndex = 2;
             // 
             // Form1
             // 
@@ -376,8 +415,11 @@
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
             this.tabPage2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dGridMemoria)).EndInit();
             this.groupBox1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.numBoxDirCarg)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ObjFileGrid)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dGridTABSE)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -409,6 +451,9 @@
         private System.Windows.Forms.Button addObjFile;
         private System.Windows.Forms.DataGridView ObjFileGrid;
         private System.Windows.Forms.Button cargarButton;
+        private System.Windows.Forms.DataGridView dGridMemoria;
+        private System.Windows.Forms.NumericUpDown numBoxDirCarg;
+        private System.Windows.Forms.DataGridView dGridTABSE;
     }
 }
 
