@@ -30,7 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.nuevoToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.abrirToolStripButton = new System.Windows.Forms.ToolStripButton();
@@ -51,24 +51,29 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.label9 = new System.Windows.Forms.Label();
+            this.erroresCargador = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.dGridTABSE = new System.Windows.Forms.DataGridView();
             this.dGridMemoria = new System.Windows.Forms.DataGridView();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label7 = new System.Windows.Forms.Label();
             this.numBoxDirCarg = new System.Windows.Forms.NumericUpDown();
             this.cargarButton = new System.Windows.Forms.Button();
             this.ObjFileGrid = new System.Windows.Forms.DataGridView();
             this.addObjFile = new System.Windows.Forms.Button();
-            this.dGridTABSE = new System.Windows.Forms.DataGridView();
             this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgridArchivo)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.editorCodigo)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dGridTABSE)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dGridMemoria)).BeginInit();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numBoxDirCarg)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ObjFileGrid)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dGridTABSE)).BeginInit();
             this.SuspendLayout();
             // 
             // toolStrip1
@@ -131,7 +136,7 @@
             this.LblProgramSize.Font = new System.Drawing.Font("Arial Narrow", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.LblProgramSize.Location = new System.Drawing.Point(1127, 643);
             this.LblProgramSize.Name = "LblProgramSize";
-            this.LblProgramSize.Size = new System.Drawing.Size(22, 16);
+            this.LblProgramSize.Size = new System.Drawing.Size(21, 16);
             this.LblProgramSize.TabIndex = 18;
             this.LblProgramSize.Text = "0H";
             this.LblProgramSize.Click += new System.EventHandler(this.LblProgramSize_Click);
@@ -151,8 +156,8 @@
             this.dgridArchivo.RowHeadersVisible = false;
             this.dgridArchivo.RowHeadersWidth = 20;
             this.dgridArchivo.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.Teal;
-            this.dgridArchivo.RowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.Teal;
+            this.dgridArchivo.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgridArchivo.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgridArchivo.Size = new System.Drawing.Size(634, 434);
             this.dgridArchivo.TabIndex = 10;
@@ -163,7 +168,7 @@
             this.label1.Font = new System.Drawing.Font("Arial Narrow", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(358, 28);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(108, 16);
+            this.label1.Size = new System.Drawing.Size(107, 16);
             this.label1.TabIndex = 11;
             this.label1.Text = "Archivo Intermedio";
             // 
@@ -173,7 +178,7 @@
             this.label2.Font = new System.Drawing.Font("Arial Narrow", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.Location = new System.Drawing.Point(3, 28);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(95, 16);
+            this.label2.Size = new System.Drawing.Size(94, 16);
             this.label2.TabIndex = 12;
             this.label2.Text = "Programa fuente";
             // 
@@ -227,7 +232,7 @@
             this.label3.Font = new System.Drawing.Font("Arial Narrow", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.Location = new System.Drawing.Point(1003, 28);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(164, 16);
+            this.label3.Size = new System.Drawing.Size(163, 16);
             this.label3.TabIndex = 16;
             this.label3.Text = "Tablas de símbolos y bloques";
             // 
@@ -237,7 +242,7 @@
             this.label4.Font = new System.Drawing.Font("Arial Narrow", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.Location = new System.Drawing.Point(1008, 643);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(125, 16);
+            this.label4.Size = new System.Drawing.Size(124, 16);
             this.label4.TabIndex = 17;
             this.label4.Text = "Tamaño del programa:";
             // 
@@ -256,7 +261,7 @@
             this.label5.Font = new System.Drawing.Font("Arial Narrow", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.Location = new System.Drawing.Point(3, 499);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(131, 16);
+            this.label5.Size = new System.Drawing.Size(130, 16);
             this.label5.TabIndex = 20;
             this.label5.Text = "Errores en el programa:";
             // 
@@ -310,6 +315,10 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.label9);
+            this.tabPage2.Controls.Add(this.erroresCargador);
+            this.tabPage2.Controls.Add(this.label8);
+            this.tabPage2.Controls.Add(this.label6);
             this.tabPage2.Controls.Add(this.dGridTABSE);
             this.tabPage2.Controls.Add(this.dGridMemoria);
             this.tabPage2.Controls.Add(this.groupBox1);
@@ -320,17 +329,70 @@
             this.tabPage2.Text = "Cargador";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Font = new System.Drawing.Font("Arial Narrow", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label9.Location = new System.Drawing.Point(419, 394);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(142, 16);
+            this.label9.TabIndex = 21;
+            this.label9.Text = "Errores Cargador-Ligador";
+            // 
+            // erroresCargador
+            // 
+            this.erroresCargador.Enabled = false;
+            this.erroresCargador.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.erroresCargador.Location = new System.Drawing.Point(422, 413);
+            this.erroresCargador.Multiline = true;
+            this.erroresCargador.Name = "erroresCargador";
+            this.erroresCargador.Size = new System.Drawing.Size(912, 150);
+            this.erroresCargador.TabIndex = 20;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Font = new System.Drawing.Font("Arial Narrow", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label8.Location = new System.Drawing.Point(8, 394);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(151, 16);
+            this.label8.TabIndex = 14;
+            this.label8.Text = "Tabla de símbolos externos";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("Arial Narrow", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label6.Location = new System.Drawing.Point(419, 12);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(98, 16);
+            this.label6.TabIndex = 13;
+            this.label6.Text = "Mapa de memoria";
+            // 
+            // dGridTABSE
+            // 
+            this.dGridTABSE.BackgroundColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.dGridTABSE.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.dGridTABSE.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dGridTABSE.Location = new System.Drawing.Point(9, 413);
+            this.dGridTABSE.Name = "dGridTABSE";
+            this.dGridTABSE.Size = new System.Drawing.Size(404, 150);
+            this.dGridTABSE.TabIndex = 2;
+            // 
             // dGridMemoria
             // 
             this.dGridMemoria.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dGridMemoria.BackgroundColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.dGridMemoria.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.dGridMemoria.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dGridMemoria.Location = new System.Drawing.Point(419, 57);
+            this.dGridMemoria.Location = new System.Drawing.Point(419, 31);
             this.dGridMemoria.Name = "dGridMemoria";
-            this.dGridMemoria.Size = new System.Drawing.Size(915, 150);
+            this.dGridMemoria.Size = new System.Drawing.Size(915, 342);
             this.dGridMemoria.TabIndex = 1;
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.label7);
             this.groupBox1.Controls.Add(this.numBoxDirCarg);
             this.groupBox1.Controls.Add(this.cargarButton);
             this.groupBox1.Controls.Add(this.ObjFileGrid);
@@ -342,21 +404,30 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Seleccionar archivos";
             // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(189, 47);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(97, 13);
+            this.label7.TabIndex = 14;
+            this.label7.Text = "Dirección de carga";
+            // 
             // numBoxDirCarg
             // 
-            this.numBoxDirCarg.Location = new System.Drawing.Point(229, 48);
+            this.numBoxDirCarg.Location = new System.Drawing.Point(292, 45);
             this.numBoxDirCarg.Maximum = new decimal(new int[] {
             1048574,
             0,
             0,
             0});
             this.numBoxDirCarg.Name = "numBoxDirCarg";
-            this.numBoxDirCarg.Size = new System.Drawing.Size(120, 20);
+            this.numBoxDirCarg.Size = new System.Drawing.Size(98, 20);
             this.numBoxDirCarg.TabIndex = 4;
             // 
             // cargarButton
             // 
-            this.cargarButton.Location = new System.Drawing.Point(6, 295);
+            this.cargarButton.Location = new System.Drawing.Point(6, 313);
             this.cargarButton.Name = "cargarButton";
             this.cargarButton.Size = new System.Drawing.Size(75, 23);
             this.cargarButton.TabIndex = 3;
@@ -368,11 +439,13 @@
             // 
             this.ObjFileGrid.AllowUserToAddRows = false;
             this.ObjFileGrid.AllowUserToDeleteRows = false;
+            this.ObjFileGrid.BackgroundColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.ObjFileGrid.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.ObjFileGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.ObjFileGrid.Location = new System.Drawing.Point(6, 85);
             this.ObjFileGrid.Name = "ObjFileGrid";
             this.ObjFileGrid.ReadOnly = true;
-            this.ObjFileGrid.Size = new System.Drawing.Size(384, 190);
+            this.ObjFileGrid.Size = new System.Drawing.Size(384, 208);
             this.ObjFileGrid.TabIndex = 2;
             this.ObjFileGrid.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.ObjFileGrid_CellClick);
             // 
@@ -380,19 +453,11 @@
             // 
             this.addObjFile.Location = new System.Drawing.Point(5, 45);
             this.addObjFile.Name = "addObjFile";
-            this.addObjFile.Size = new System.Drawing.Size(174, 23);
+            this.addObjFile.Size = new System.Drawing.Size(137, 23);
             this.addObjFile.TabIndex = 1;
             this.addObjFile.Text = "Agregar archivo";
             this.addObjFile.UseVisualStyleBackColor = true;
             this.addObjFile.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // dGridTABSE
-            // 
-            this.dGridTABSE.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dGridTABSE.Location = new System.Drawing.Point(9, 413);
-            this.dGridTABSE.Name = "dGridTABSE";
-            this.dGridTABSE.Size = new System.Drawing.Size(404, 150);
-            this.dGridTABSE.TabIndex = 2;
             // 
             // Form1
             // 
@@ -415,11 +480,13 @@
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
             this.tabPage2.ResumeLayout(false);
+            this.tabPage2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dGridTABSE)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dGridMemoria)).EndInit();
             this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numBoxDirCarg)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ObjFileGrid)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dGridTABSE)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -454,6 +521,11 @@
         private System.Windows.Forms.DataGridView dGridMemoria;
         private System.Windows.Forms.NumericUpDown numBoxDirCarg;
         private System.Windows.Forms.DataGridView dGridTABSE;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.TextBox erroresCargador;
     }
 }
 

@@ -249,6 +249,13 @@ namespace EnsambladorSicXE
                         {
                             nomSimb = nombProg;
                         }
+                        if (nomSimb.Length < 6)
+                        {
+                            while(nomSimb.Length < 6)
+                            {
+                                nomSimb = nomSimb + " ";
+                            }
+                        }
                         if ((string)tablaArchivo.Rows[i].Cells[5].Value == "WORD")
                         {
                             int currentCP = Convert.ToInt32((string)tablaArchivo.Rows[i].Cells[2].Value, 16) + offset;

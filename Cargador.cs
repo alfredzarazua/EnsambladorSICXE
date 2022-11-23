@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -11,7 +12,7 @@ namespace EnsambladorSicXE
     {
         List<string> files;
         List<string[]> tabse;
-        int dirSec;
+        public int dirSec { get; set; }
 
         public Cargador(int dirOrig)
         {
@@ -31,7 +32,7 @@ namespace EnsambladorSicXE
             pasoDos(programa, memoria);
         }
 
-        public void pasoUno(string[] programa)
+        public string pasoUno(string[] programa)
         {
             int dirProg = dirSec;
             
@@ -39,7 +40,7 @@ namespace EnsambladorSicXE
             int lonsc = 0;
             string nombreSeccion = "";
             bool errorFlag = false;
-            
+            string msg = "";
             foreach(string linea in programa)
             {
                 if(linea[0] == 'H')
@@ -50,6 +51,7 @@ namespace EnsambladorSicXE
                     if (!insTABSE)
                     {
                         errorFlag = true;
+                        msg += "Error: Símbolo externo duplicado ["+nombreSeccion+"]"+Environment.NewLine;
                         break;
                     }
                 }
@@ -65,6 +67,7 @@ namespace EnsambladorSicXE
                         if (!insSimbolo)
                         {
                             errorFlag = true;
+                            msg += "Error: Símbolo externo duplicado [" + simbolo + "]" + Environment.NewLine;
                             break;
                         }
                         int dirSimbolo = Convert.ToInt32(linea.Substring(dirPointer, 6), 16);
@@ -76,15 +79,17 @@ namespace EnsambladorSicXE
                 }
                 
             }
-            //dirSec = dirsc + lonsc;
+            dirSec = dirsc + lonsc;
+            return msg;
         }
 
-        public void pasoDos(string[] programa, DataGridView memoria)
+        public string pasoDos(string[] programa, DataGridView memoria)
         {
             int dirsc = dirSec;
             int direj = dirsc;
             int lonsc = 0;
-
+            bool errorFlag = false;
+            string msg = "";
             foreach (string linea in programa)
             {
                 int dirRow = 0;
@@ -99,10 +104,108 @@ namespace EnsambladorSicXE
                     creaLineaMemoria(memoria, dirRow);
                     cargaRegistroT(memoria, dirT + dirsc, linea, dirRow);
                     //cargaRegistroT(memoria, dirT + dirsc, linea, dirRow);
+                }else if (linea[0] == 'M')
+                {
+                    string simbolo = linea.Substring(10, 6);
+                    int valor = buscarSimboloTABSE(simbolo);
+                    if (valor != -1)
+                    {
+                        int direcc = Convert.ToInt32(linea.Substring(1, 6),16);
+                        int mObjetivo = dirsc + direcc;
+                        dirRow = (mObjetivo / 0x10) * 0x10;
+                        modificarBytes(linea, mObjetivo, dirRow, memoria, valor);
+                    }
+                    else
+                    {
+                        //Activa la bandera de error (símbolo externo indefinido)
+                        msg += "Error: Símbolo externo indefinido [" + simbolo + "]" + Environment.NewLine;
+                        errorFlag = true;
+                        break;
+                    }
+
+                }
+                else if (linea[0] == 'E')
+                {
+                    if(linea.Length > 1)
+                    {
+                        direj = dirsc + Convert.ToInt32(linea.Substring(1,6), 16);
+                    }
+                    dirSec = dirsc + lonsc;
                 }
             }
+            return msg;
         }
-
+        private void modificarBytes(string regM, int direcObjetivo, int dirRow, DataGridView memoria, int val)
+        {
+            int halfBytes = Convert.ToInt32(regM.Substring(7, 2), 16);
+            int rIndex = getIndexofMemoryRow(dirRow, memoria);
+            int cIndex = direcObjetivo - dirRow;
+            string valor = "";
+            int cont = 0;
+            for (int i = 0; i < 3; i++)
+            {
+                if ((cIndex + i) > 15)
+                {
+                    rIndex++;
+                    cIndex = 0;
+                    cont = 0;                    
+                }
+                valor += memoria.Rows[rIndex].Cells[cIndex + cont].Value;
+                cont++;
+            }
+            switch (halfBytes)
+            {
+                case 5:
+                    int mx = Convert.ToInt32(valor.Substring(1, 5), 16);
+                    if (regM[9] == '+')
+                    {
+                        mx = mx + val;
+                    }
+                    else{
+                        mx = mx - val;
+                    }
+                    valor = valor.Substring(0, 1) + mx.ToString("X5");
+                    break;
+                case 6:
+                    int mx1 = Convert.ToInt32(valor, 16);
+                    if (regM[9] == '+')
+                    {
+                        mx1 = mx1 + val;
+                    }
+                    else
+                    {
+                        mx1 = mx1 - val;
+                    }
+                    valor = mx1.ToString("X6");
+                    break;
+            }
+            rIndex = getIndexofMemoryRow(dirRow, memoria);
+            cIndex = direcObjetivo - dirRow;
+            cont = 0;
+            for (int i = 0; i < 3; i++)
+            {
+                if ((cIndex + i) > 15)
+                {
+                    rIndex++;
+                    cIndex = 0;
+                    cont = 0;
+                }
+                memoria.Rows[rIndex].Cells[cIndex + cont].Value = valor.Substring(i*2, 2);
+                cont++;
+            }
+        }
+        private int buscarSimboloTABSE(string simbolo)
+        {
+            int dir = -1;
+            foreach (string[] row in tabse)
+            {
+                if (row[0] == simbolo || row[1] == simbolo)
+                {
+                    dir = Convert.ToInt32(row[2],16);
+                }
+            }
+            return dir;
+        }
         public bool buscaInsertaTabSESeccion(string simbolo, int dirIni, int longitud)
         {
             bool found = true;

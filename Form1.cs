@@ -73,6 +73,8 @@ namespace EnsambladorSicXE
             btn.Name = "btn";
             btn.UseColumnTextForButtonValue=true;
             ObjFileGrid.Columns.Add(btn);
+            setStyle(ObjFileGrid);
+            ObjFileGrid.RowHeadersVisible = false;
         }
 
         private void initdGridMemoria()
@@ -94,6 +96,22 @@ namespace EnsambladorSicXE
             dGridMemoria.Columns[13].Name = "D";
             dGridMemoria.Columns[14].Name = "E";
             dGridMemoria.Columns[15].Name = "F";
+            setStyle(dGridMemoria);
+        }
+        private void setStyle(DataGridView dt)
+        {
+            dt.EditMode = DataGridViewEditMode.EditProgrammatically;
+            dt.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dt.AllowUserToAddRows = false;
+            dt.RowHeadersVisible = true;
+            dt.RowHeadersWidth = 100;
+            dt.BorderStyle = BorderStyle.Fixed3D;
+            dt.BackgroundColor = SystemColors.ButtonHighlight;
+            dt.AllowUserToResizeRows = false;
+            dt.ScrollBars = System.Windows.Forms.ScrollBars.None;
+            dt.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dt.DefaultCellStyle.SelectionBackColor = Color.Teal;
+            dt.DefaultCellStyle.SelectionForeColor = SystemColors.HighlightText;
         }
 
         private void initdGridTABSE()
@@ -103,7 +121,8 @@ namespace EnsambladorSicXE
             dGridTABSE.Columns[1].Name = "Simbolo";
             dGridTABSE.Columns[2].Name = "Direccion";
             dGridTABSE.Columns[3].Name = "Longitud";
-
+            setStyle(dGridTABSE);
+            dGridTABSE.RowHeadersVisible = false;
         }
 
         private void setEditorStyle()
@@ -1325,6 +1344,7 @@ namespace EnsambladorSicXE
         private void cargarButton_Click(object sender, EventArgs e)
         {
             //ObjFileGrid.Rows.Clear();
+            erroresCargador.Text = "";
             dGridMemoria.Rows.Clear();
             dGridTABSE.Rows.Clear();
             car = new Cargador((int)numBoxDirCarg.Value);
@@ -1333,10 +1353,25 @@ namespace EnsambladorSicXE
                 try
                 {
                     string[] lineas = File.ReadAllLines((string)ObjFileGrid.Rows[i].Cells[0].Value);
-                    car.cargadorAlgoritmo(dGridMemoria, lineas);
-                    
+                    //car.cargadorAlgoritmo(dGridMemoria, lineas);
+                    string res = car.pasoUno(lineas);
+                    erroresCargador.Text += res;
                 }
                 catch(IOException ex)
+                {
+
+                }
+            }
+            car.dirSec = (int)numBoxDirCarg.Value;
+            for (int i = 0; i < ObjFileGrid.RowCount; i++)
+            {
+                try
+                {
+                    string[] lineas = File.ReadAllLines((string)ObjFileGrid.Rows[i].Cells[0].Value);
+                    string res = car.pasoDos(lineas, dGridMemoria);
+                    erroresCargador.Text += res;
+                }
+                catch (IOException ex)
                 {
 
                 }
