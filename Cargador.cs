@@ -40,7 +40,7 @@ namespace EnsambladorSicXE
             int lonsc = 0;
             string nombreSeccion = "";
             bool errorFlag = false;
-            string msg = "";
+            string msg = "";            
             foreach(string linea in programa)
             {
                 if(linea[0] == 'H')

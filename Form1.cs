@@ -270,7 +270,7 @@ namespace EnsambladorSicXE
         }
         private void button2_Click(object sender, EventArgs e)
         {
-            clearForm();
+            clearForm();            
             CP = 0;
             fase = false;
             currentBloqu = 0;

@@ -248,24 +248,31 @@ namespace EnsambladorSicXE
                         else
                         {
                             nomSimb = nombProg;
-                        }
-                        if (nomSimb.Length < 6)
-                        {
-                            while(nomSimb.Length < 6)
-                            {
-                                nomSimb = nomSimb + " ";
-                            }
-                        }
+                        }                        
                         if ((string)tablaArchivo.Rows[i].Cells[5].Value == "WORD")
                         {
                             int currentCP = Convert.ToInt32((string)tablaArchivo.Rows[i].Cells[2].Value, 16) + offset;
-                            string signo = obtenerSigno(nomSimb, tablaArchivo.Rows[i].Cells[6].Value.ToString());                            
+                            string signo = obtenerSigno(nomSimb, tablaArchivo.Rows[i].Cells[6].Value.ToString());
+                            if (nomSimb.Length < 6)
+                            {
+                                while (nomSimb.Length < 6)
+                                {
+                                    nomSimb = nomSimb + " ";
+                                }
+                            }
                             rengRM += currentCP.ToString("X6") + "06" + signo + nomSimb;
                         }
                         else
                         {
                             int currentCP = Convert.ToInt32((string)tablaArchivo.Rows[i].Cells[2].Value, 16) + 1 + offset;
-                            string signo = obtenerSigno(nomSimb, tablaArchivo.Rows[i].Cells[6].Value.ToString());                            
+                            string signo = obtenerSigno(nomSimb, tablaArchivo.Rows[i].Cells[6].Value.ToString());
+                            if (nomSimb.Length < 6)
+                            {
+                                while (nomSimb.Length < 6)
+                                {
+                                    nomSimb = nomSimb + " ";
+                                }
+                            }
                             rengRM += currentCP.ToString("X6") + "05" + signo + nomSimb;
                         }
                         regM.Add(rengRM);
